@@ -1,0 +1,17 @@
+{
+  "id": "licencia-modal-21",
+  "instruction": "Abre la aplicación «Licencias» (su id es manos-licencia; tarda unos segundos en arrancar) y activa la licencia a nombre de Ferretería Albar S.L. con el código QK7M-4RTX-9PLW. Cuando quede activada, dime el número de equipo que muestra.",
+  "setup": "bash -lc 'test -n \"$XDG_DATA_HOME\" -a \"$XDG_DATA_HOME\" != \"$HOME/.local/share\" || { echo \"solo dentro de la KWin anidada\" >&2; exit 1; }; mkdir -p \"$BENCH_HOME\" \"$XDG_DATA_HOME/bench\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$XDG_DATA_HOME/bench/licencia.\"* && mkdir -p \"$XDG_DATA_HOME/applications\" && printf \"[Desktop Entry]\\nType=Application\\nName=Licencias\\nExec=env XDG_DATA_HOME=%s /usr/bin/python3 %s\\nStartupWMClass=manos-licencia\\n\" \"$XDG_DATA_HOME\" \"$PWD/bench/fixtures/licencia.py\" > \"$XDG_DATA_HOME/applications/manos-licencia.desktop\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/licencia.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$XDG_DATA_HOME/bench/licencia.pid\" 2>/dev/null)\" 2>/dev/null; test -n \"$XDG_DATA_HOME\" && rm -f \"$XDG_DATA_HOME/applications/manos-licencia.desktop\"; true'",
+  "tags": [
+    "desktop",
+    "largo",
+    "rung3",
+    "gtk",
+    "modal",
+    "lenta"
+  ],
+  "target": "agent",
+  "budget_s": 360
+}

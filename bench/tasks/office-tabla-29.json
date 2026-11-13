@@ -1,0 +1,14 @@
+{
+  "id": "office-tabla-29",
+  "instruction": "En el directorio de trabajo está inventario.pdf, el recuento del almacén. Pasa su tabla a inventario.csv en el mismo directorio: una fila de cabecera con los nombres de las columnas tal como salen en el PDF y una fila por producto, con los valores tal cual. Solo la tabla, sin el título ni las notas. Al final, dime cuántos productos tiene.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/inventario.csv\" && cp bench/fixtures/inventario-almacen.pdf \"$BENCH_HOME/inventario.pdf\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/inventario.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "ofimatica",
+    "fichero",
+    "pdf"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

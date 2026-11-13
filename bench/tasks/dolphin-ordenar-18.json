@@ -1,0 +1,15 @@
+{
+  "id": "dolphin-ordenar-18",
+  "instruction": "En Dolphin, ordena la carpeta Descargas del directorio de trabajo: crea dentro tres carpetas, «PDF», «Imágenes» y «Textos», y mueve a cada una los ficheros que le tocan por su extensión: los .pdf a PDF, los .jpg y .png a Imágenes y los .txt a Textos. Hazlo todo con Dolphin; mover, no copiar, y no borres nada. Al terminar, en Descargas solo tienen que quedar esas tres carpetas.",
+  "setup": "bash -lc 'test -n \"$XDG_DATA_HOME\" -a \"$XDG_DATA_HOME\" != \"$HOME/.local/share\" || { echo \"solo dentro de la KWin anidada\" >&2; exit 1; }; mkdir -p \"$BENCH_HOME\" \"$XDG_DATA_HOME/bench\" && date +%s > \"$BENCH_HOME/.t0\" && rm -rf \"$BENCH_HOME/Descargas\" && mkdir \"$BENCH_HOME/Descargas\" && cd \"$BENCH_HOME/Descargas\" && for f in factura-enero.pdf factura-febrero.pdf contrato-alquiler.pdf foto-playa.jpg captura.png notas.txt lista-compra.txt informe.pdf.txt; do echo \"$f\" > \"$f\"; done && stat -c \"%i %n\" * > \"$XDG_DATA_HOME/bench/inodos.txt\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/ordenar.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "desktop",
+    "largo",
+    "rung1",
+    "dolphin"
+  ],
+  "target": "agent",
+  "budget_s": 600
+}

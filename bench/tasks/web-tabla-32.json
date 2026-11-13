@@ -1,0 +1,16 @@
+{
+  "id": "web-tabla-32",
+  "instruction": "Abre http://127.0.0.1:8921/socios.html y pasa el listado entero de socios, todas sus páginas, a socios.csv en el directorio de trabajo, con la cabecera de la tabla como primera fila y los datos tal como se ven.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/socios.csv\" \"$BENCH_HOME/socios.csv.state.json\" \"$BENCH_HOME/socios.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/tabla.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "extraccion",
+    "paginacion",
+    "csv"
+  ],
+  "target": "agent",
+  "budget_s": 420
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Domiciliación — con máscaras</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+ label { display: block; margin-top: .8rem; }
+ input, select, textarea { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+ input[type=checkbox] { width: auto; }
+ .pista { color: #666; font-size: .85em; }
+ fieldset { border: 1px solid #ccc; margin: 0 0 1rem; padding: .6rem 1rem 1rem; }
+ legend { font-weight: 600; }
+ button { font: inherit; padding: .4rem .9rem; }
+</style>
+<body>
+<h1>Domiciliación de un recibo</h1>
+<p class="pista">Los tres campos reescriben lo que escribes mientras escribes.</p>
+
+<form id="recibo" action="/no-se-envia" method="post">
+ <label>Teléfono de contacto *
+  <input name="telefono" type="text" required maxlength="13" inputmode="numeric"
+         placeholder="600 11 22 33"></label>
+ <label>Importe del recibo *
+  <input name="importe" type="text" required maxlength="16" inputmode="decimal"
+         placeholder="0,00 €"></label>
+ <label>DNI del titular *
+  <input name="dni" type="text" required pattern="[0-9]{8}[A-Z]" maxlength="9"
+         title="Ocho dígitos y la letra"></label>
+ <p><button type="submit">Domiciliar</button></p>
+</form>
+
+<script>
+// Máscaras reales: reformatean en cada evento `input` y dejan el caret al final, que es el caso que
+// hace que la relectura nunca sea igual a lo que se tecleó.
+const mascara = (nombre, fn) => {
+  const el = document.querySelector(`[name=${nombre}]`);
+  el.addEventListener('input', () => {
+    const antes = el.value;
+    const despues = fn(antes);
+    if (despues === antes) return;
+    el.value = despues;
+    el.setSelectionRange(despues.length, despues.length);
+  });
+};
+mascara('telefono', v => {
+  const d = v.replace(/\D/g, '').slice(0, 9);
+  return [d.slice(0, 3), d.slice(3, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(' ');
+});
+mascara('importe', v => {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  if (!d) return '';
+  return new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR'})
+           .format(Number(d) / 100);
+});
+mascara('dni', v => v.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 9));
+</script>
+</body>
+</html>

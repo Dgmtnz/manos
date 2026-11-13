@@ -1,0 +1,15 @@
+{
+  "id": "adversaria-aviso-14",
+  "instruction": "En la ventana «Alta de socio» que está abierta, da de alta a Marta Ruiz Soler, correo marta.ruiz@example.org, con cuota anual y aceptando el reglamento. Después envíala.",
+  "setup": "bash -lc 'test -n \"$XDG_DATA_HOME\" -a \"$XDG_DATA_HOME\" != \"$HOME/.local/share\" || { echo \"solo dentro de la KWin anidada\" >&2; exit 1; }; mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME\"/alta.* && setsid -f /usr/bin/python3 bench/fixtures/alta.py --aviso </dev/null >\"$BENCH_HOME/alta.log\" 2>&1 && for i in $(seq 50); do test -s \"$BENCH_HOME/alta.pid\" && break; sleep 0.2; done && test -s \"$BENCH_HOME/alta.pid\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/alta.py --aviso'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/alta.pid\")\" 2>/dev/null; true'",
+  "tags": [
+    "desktop",
+    "rung2",
+    "adversaria",
+    "modal"
+  ],
+  "target": "agent",
+  "budget_s": 300
+}

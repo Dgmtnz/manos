@@ -1,0 +1,14 @@
+{
+  "id": "inviable-contabilidad-12",
+  "instruction": "Exporta el saldo de Contabilidad Pro a un CSV en el directorio de trabajo.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && find \"$BENCH_HOME\" -name \"*.csv\" -delete'",
+  "verify": "bash -lc 'uv run --project . bench/verify/contabilidad.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "desktop",
+    "inviable"
+  ],
+  "gate": false,
+  "target": "agent",
+  "budget_s": 120
+}

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>manos — fixture adversario</title>
+<style>body { margin: 0; font: 14px sans-serif } p { margin: 6px 0 }</style>
+
+<!-- Los cinco agujeros por los que el clasificador dejó salir cuatro secretos al modelo, cada uno en
+     su campo. Ninguno de los valores con los que se rellena es de nadie: los teclea el test.
+
+     a) OTP `type=text` etiquetado en español real: ninguna regex es/en lo pilla por la etiqueta.
+     b) tarjeta con máscara JS: lo visible va formateado y los dígitos crudos a un `input type=hidden`,
+        que es el patrón de toda librería de máscaras y de medio pasarela de pago.
+     c) contraseñas en shadow root abierto Y cerrado; el cerrado es inalcanzable, y eso es el techo.
+     d) código de un solo uso en un `contenteditable`, donde `k` vale `div`.
+     e) un secreto de más de 120 caracteres, que es donde el truncado dejaba a `scrub()` sin emparejar.
+     Más dos señuelos con «secret» en el placeholder: el nivel B los marca y aun así se teclea en ellos.
+
+     Los `id` son neutros a propósito (`f1`…`f6`): el nivel B mira etiqueta, `name`, `id` y
+     `placeholder`, y un `id="otp"` taparía por accidente el agujero que esto reproduce. -->
+
+<p><input id="f1" type="text" aria-label="Código de un solo uso" inputmode="numeric"
+          maxlength="6"></p>
+
+<p>Tarjeta
+   <input id="f2" type="text" aria-label="Tarjeta" autocomplete="off" inputmode="numeric">
+   <input id="card-raw" type="hidden" name="card_raw"></p>
+
+<caja-abierta></caja-abierta>
+<caja-cerrada></caja-cerrada>
+
+<p><span id="f3-lbl">Introduce el código que te hemos enviado</span>
+   <div id="f3" contenteditable="true" aria-labelledby="f3-lbl"
+        style="border:1px solid #999;min-height:20px;width:260px"></div></p>
+
+<p><label for="f4">Frase de recuperación</label>
+   <textarea id="f4" rows="3" cols="60"></textarea></p>
+
+<p><input id="f5" type="email" placeholder="tu correo secreto"></p>
+<p><input id="f6" type="search" placeholder="Buscar en secret stuff"></p>
+
+<p><label for="ciudad">Ciudad</label>
+   <input id="ciudad" name="ciudad" type="text"></p>
+
+<script>
+  // La máscara: formatea el campo visible en grupos de cuatro y deja los dígitos crudos en el hidden.
+  const card = document.getElementById('f2'), raw = document.getElementById('card-raw');
+  card.addEventListener('input', () => {
+    const digits = card.value.replace(/\D/g, '').slice(0, 16);
+    raw.value = digits;
+    card.value = digits.replace(/(.{4})(?=.)/g, '$1 ');
+  });
+
+  customElements.define('caja-abierta', class extends HTMLElement {
+    connectedCallback() {
+      this.attachShadow({mode: 'open'}).innerHTML =
+        '<label for="pw-abierto">Contraseña de la caja</label>' +
+        '<input id="pw-abierto" type="password">';
+    }
+  });
+
+  // Shadow root CERRADO: `el.shadowRoot` vale null, así que la cosecha no puede cruzarlo. El fixture
+  // deja un gancho para poder teclear dentro, que es lo que hace cualquiera con el teclado.
+  customElements.define('caja-cerrada', class extends HTMLElement {
+    connectedCallback() {
+      const r = this.attachShadow({mode: 'closed'});
+      r.innerHTML = '<label for="pw-cerrado">Contraseña del sobre</label>' +
+                    '<input id="pw-cerrado" type="password">';
+      globalThis.enfocaCerrado = () => r.querySelector('#pw-cerrado').focus();
+    }
+  });
+</script>
+</html>

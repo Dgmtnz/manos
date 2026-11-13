@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Ventas del trimestre</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; }
+ table { border-collapse: collapse; width: 100%; }
+ th, td { border-bottom: 1px solid #ddd; padding: .3rem .5rem; text-align: left; }
+ td.n { text-align: right; }
+ .pista { color: #666; font-size: .85em; }
+ nav { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
+ button { font: inherit; padding: .4rem .9rem; }
+</style>
+<body>
+<h1>Ventas del trimestre</h1>
+<p class="pista" id="estado">Cargando…</p>
+
+<table>
+ <thead><tr><th>Venta</th><th>Cliente</th><th class="n">Importe</th><th>Pagado</th></tr></thead>
+ <tbody id="filas"></tbody>
+</table>
+
+<nav>
+ <button type="button" id="anterior">Anterior</button>
+ <span id="pagina">Página 1</span>
+ <button type="button" id="siguiente">Siguiente</button>
+</nav>
+
+<p class="pista">Para desarrolladores: estos datos salen de la API JSON <code id="api"></code> (25 ventas por
+página; la lista está en <code>data.items</code> y viene vacía tras la última página).</p>
+
+<script>
+// Los datos viven solo en la API (bench/verify/serve.py, `ventas()`); con ?cupo=1 la API es la que da 429, salvo a
+// las peticiones de la propia página (`vista=1`), para que un clic en «Siguiente» no gaste el cupo de la extracción.
+const API = new URLSearchParams(location.search).has('cupo') ? '/api/ventas-cupo' : '/api/ventas';
+document.getElementById('api').textContent = API + '?pagina=1';
+const euros = new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR'});
+let pagina = 1;
+
+const cargar = async () => {
+  const r = await fetch(`${API}?pagina=${pagina}&vista=1`);  // `vista`: las de la propia página no gastan cupo
+  if (!r.ok) {
+    document.getElementById('estado').textContent = `Error ${r.status}: inténtalo dentro de un momento.`;
+    return;
+  }
+  const items = (await r.json()).data.items;
+  document.getElementById('filas').replaceChildren(...items.map(v => {
+    const tr = document.createElement('tr');
+    for (const [txt, cls] of [[v.id, ''], [v.cliente, ''], [euros.format(v.importe), 'n'], [v.pagado ? 'sí' : 'no', '']]) {
+      const td = document.createElement('td');
+      td.textContent = txt;
+      if (cls) td.className = cls;
+      tr.append(td);
+    }
+    return tr;
+  }));
+  document.getElementById('estado').textContent = `${items.length} ventas en esta página.`;
+  document.getElementById('pagina').textContent = `Página ${pagina}`;
+  document.getElementById('anterior').disabled = pagina === 1;
+  document.getElementById('siguiente').disabled = items.length < 25;
+};
+
+document.getElementById('anterior').addEventListener('click', () => { pagina--; cargar(); });
+document.getElementById('siguiente').addEventListener('click', () => { pagina++; cargar(); });
+cargar();
+</script>
+</body>
+</html>

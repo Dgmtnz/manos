@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Devolución — campo en un shadow root</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+ label { display: block; margin-top: .8rem; }
+ input, select, textarea { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+ input[type=checkbox] { width: auto; }
+ .pista { color: #666; font-size: .85em; }
+ fieldset { border: 1px solid #ccc; margin: 0 0 1rem; padding: .6rem 1rem 1rem; }
+ legend { font-weight: 600; }
+ button { font: inherit; padding: .4rem .9rem; }
+</style>
+<body>
+<h1>Solicitar una devolución</h1>
+
+<form id="devolucion" action="/no-se-envia" method="post">
+ <label>Número de pedido *
+  <input name="pedido" type="text" required pattern="[A-Z]{2}-[0-9]{6}" value="ES-114027" readonly></label>
+ <label>Correo electrónico *
+  <input name="email" type="email" required autocomplete="email"></label>
+</form>
+
+<h2>Cuenta para el ingreso</h2>
+<datos-bancarios></datos-bancarios>
+
+<p><button type="submit" form="devolucion">Pedir la devolución</button></p>
+
+<script>
+// Shadow root ABIERTO: la cosecha entra con `el.shadowRoot` y el relleno funciona, pero dos trampas
+// medidas viven aquí. Una, `document.activeElement` es el HOST y no el campo, así que la aserción de
+// foco tiene que descender. Dos, estos campos NO pertenecen al <form> de arriba: la asociación de
+// formulario no cruza la frontera, así que `form.checkValidity()` no los ve y hay que leer su validez
+// campo a campo.
+class DatosBancarios extends HTMLElement {
+  connectedCallback() {
+    this.attachShadow({mode: 'open'}).innerHTML = `
+      <style>
+        label { display: block; margin-top: .8rem; font: 15px/1.5 system-ui, sans-serif; }
+        input { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+      </style>
+      <label>Titular de la cuenta *
+       <input name="titular" type="text" required maxlength="80"></label>
+      <label>IBAN *
+       <input name="iban" type="text" required pattern="[A-Z]{2}[0-9]{22}" maxlength="24"
+              placeholder="ES00 0000 0000 0000 0000 0000" title="24 caracteres, sin espacios"></label>`;
+  }
+}
+customElements.define('datos-bancarios', DatosBancarios);
+</script>
+</body>
+</html>

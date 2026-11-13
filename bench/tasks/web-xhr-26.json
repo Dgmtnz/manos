@@ -1,0 +1,15 @@
+{
+  "id": "web-xhr-26",
+  "instruction": "Abre http://127.0.0.1:8921/envio.html y dime en qué punto tengo que recoger el pedido y con qué código.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/envio-xhr.json\" \"$BENCH_HOME/envio.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/xhr.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "xhr",
+    "espera"
+  ],
+  "target": "agent",
+  "budget_s": 180
+}

@@ -1,0 +1,14 @@
+{
+  "id": "web-subida-25",
+  "instruction": "Abre http://127.0.0.1:8921/justificante.html y adjunta a la reclamación el justificante de pago, que es el fichero justificante-pago.pdf del directorio de trabajo. Después confirma el envío.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/justificante-envio.json\" \"$BENCH_HOME/justificante.json\" && cp bench/fixtures/justificante-pago.pdf \"$BENCH_HOME/\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/subida.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "fichero"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

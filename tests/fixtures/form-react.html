@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Entrada controlada con rastreador de valor</title>
+
+<!-- El rastreador de valor de React 18, reproducido en 16 líneas en vez de traerse 1,2 MB de
+     react-dom al repositorio. No es una imitación aproximada: es EL mecanismo que el estudio midió
+     (§2.3), y el único que importa para decidir cómo se escribe en un campo.
+
+     React instala un setter de `value` en la PROPIA INSTANCIA del elemento que recuerda el último
+     valor que conoce. `el.value = 'Diego'` escribe A TRAVÉS de ese rastreador, así que cuando llega
+     el evento `input` React compara, ve el mismo valor que ya recordaba, y lo tira: el DOM dice
+     'Diego' y el estado del componente se queda vacío. Y la divergencia no es cosmética — el
+     siguiente clic real calcula el valor equivocado.
+
+     Medido en el estudio sobre React 18.3.1 de verdad, y reproducido aquí tal cual:
+       el.value='Diego'                                 -> DOM 'Diego', estado ''      DIVERGE
+       el.value='Diego' + new Event('input')            -> DOM 'Diego', estado ''      DIVERGE
+       setter del prototipo nativo + InputEvent('input')-> DOM 'DIEGO', estado 'DIEGO'  OK
+       Input.insertText('diego')                        -> DOM 'DIEGO', estado 'DIEGO'  OK (confiable)
+
+     El espejo pasa a mayúsculas a propósito: si el espejo cambia, el manejador del componente corrió
+     de verdad, y no se puede confundir con el DOM habiendo cambiado por su cuenta.
+-->
+
+<main>
+  <p><label for="ctrl">Nombre controlado</label>
+     <input id="ctrl" name="ctrl" type="text" required></p>
+  <p>estado del componente: <span id="estado"></span></p>
+
+  <p><label for="sctrl">Provincia controlada</label>
+     <select id="sctrl" name="sctrl" required>
+       <option value="">-- elige --</option>
+       <option value="MU">Murcia</option>
+       <option value="MA">Madrid</option>
+     </select></p>
+  <p>estado del select: <span id="sestado"></span></p>
+</main>
+
+<script>
+// `render` devuelve lo que el componente pinta de vuelta en el campo; escribirlo por el setter de
+// INSTANCIA es el re-render de React, y es lo que pone `last` al día.
+function track(el, evento, render) {
+  const proto = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value');
+  let last = proto.get.call(el);
+  Object.defineProperty(el, 'value', {           // el setter de instancia que React pone
+    configurable: true,
+    get() { return proto.get.call(this); },
+    set(v) { last = v; proto.set.call(this, v); },
+  });
+  el.addEventListener(evento, () => {
+    const v = proto.get.call(el);
+    if (v === last) return;                      // React compara y descarta: aquí está la divergencia
+    last = v;
+    const out = render(v);
+    if (out !== undefined && out !== v) el.value = out;
+  });
+}
+
+const estado = document.getElementById('estado'), sestado = document.getElementById('sestado');
+track(document.getElementById('ctrl'), 'input', v => (estado.textContent = v.toUpperCase()));
+track(document.getElementById('sctrl'), 'change', v => { sestado.textContent = v; });
+</script>
+</html>

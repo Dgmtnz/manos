@@ -1,0 +1,14 @@
+{
+  "id": "web-paginar-22",
+  "instruction": "Abre http://127.0.0.1:8921/catalogo.html y pasa el catálogo entero, sus 12 páginas, a un fichero productos.ndjson en el directorio de trabajo: un artículo por línea, cada uno un objeto JSON con exactamente los campos ref, nombre y precio, con el precio como número en euros y punto decimal (4.21, no \"4,21 €\"). Cada artículo una sola vez y en el orden del catálogo.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/productos.ndjson\" \"$BENCH_HOME/catalogo.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/paginar.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "paginacion"
+  ],
+  "target": "agent",
+  "budget_s": 720
+}

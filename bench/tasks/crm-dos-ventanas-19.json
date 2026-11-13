@@ -1,0 +1,16 @@
+{
+  "id": "crm-dos-ventanas-19",
+  "instruction": "Hay dos ventanas abiertas con la ficha del cliente 1042: una del CRM antiguo y otra del CRM nuevo. Pasa a la del CRM nuevo la razón social, el NIF, el teléfono móvil, el correo y la dirección de envío que constan en el CRM antiguo, y guarda la ficha nueva. La del CRM antiguo no se toca.",
+  "setup": "bash -lc 'test -n \"$XDG_DATA_HOME\" -a \"$XDG_DATA_HOME\" != \"$HOME/.local/share\" || { echo \"solo dentro de la KWin anidada\" >&2; exit 1; }; mkdir -p \"$BENCH_HOME\" \"$XDG_DATA_HOME/bench\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$XDG_DATA_HOME/bench/ficha-\"* && setsid -f /usr/bin/python3 bench/fixtures/ficha.py --antiguo </dev/null >\"$XDG_DATA_HOME/bench/ficha-antiguo.log\" 2>&1 && for i in $(seq 50); do test -s \"$XDG_DATA_HOME/bench/ficha-antiguo.pid\" && break; sleep 0.2; done && test -s \"$XDG_DATA_HOME/bench/ficha-antiguo.pid\" && setsid -f /usr/bin/python3 bench/fixtures/ficha.py --nuevo </dev/null >\"$XDG_DATA_HOME/bench/ficha-nuevo.log\" 2>&1 && for i in $(seq 50); do test -s \"$XDG_DATA_HOME/bench/ficha-nuevo.pid\" && break; sleep 0.2; done && test -s \"$XDG_DATA_HOME/bench/ficha-nuevo.pid\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/ficha.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$XDG_DATA_HOME/bench/ficha-antiguo.pid\" 2>/dev/null)\" 2>/dev/null; kill \"$(cat \"$XDG_DATA_HOME/bench/ficha-nuevo.pid\" 2>/dev/null)\" 2>/dev/null; true'",
+  "tags": [
+    "desktop",
+    "largo",
+    "rung2",
+    "gtk",
+    "ventanas"
+  ],
+  "target": "agent",
+  "budget_s": 360
+}

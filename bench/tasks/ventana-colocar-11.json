@@ -1,0 +1,14 @@
+{
+  "id": "ventana-colocar-11",
+  "instruction": "Abre la aplicación «Alta de socio» (su id es manos-alta) y coloca su ventana con el marco en x=100, y=80, de 720 de ancho por 520 de alto. No rellenes nada. Cuando esté, dime la geometría con la que ha quedado.",
+  "setup": "bash -lc 'test -n \"$XDG_DATA_HOME\" -a \"$XDG_DATA_HOME\" != \"$HOME/.local/share\" || { echo \"solo dentro de la KWin anidada\" >&2; exit 1; }; mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME\"/alta.* && mkdir -p \"$XDG_DATA_HOME/applications\" && printf \"[Desktop Entry]\\nType=Application\\nName=Alta de socio\\nExec=env BENCH_HOME=%s /usr/bin/python3 %s\\nStartupWMClass=manos-alta\\n\" \"$BENCH_HOME\" \"$PWD/bench/fixtures/alta.py\" > \"$XDG_DATA_HOME/applications/manos-alta.desktop\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/colocar.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/alta.pid\")\" 2>/dev/null; test -n \"$XDG_DATA_HOME\" && rm -f \"$XDG_DATA_HOME/applications/manos-alta.desktop\"; true'",
+  "tags": [
+    "desktop",
+    "rung1",
+    "ventanas"
+  ],
+  "target": "agent",
+  "budget_s": 180
+}

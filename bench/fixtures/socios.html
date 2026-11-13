@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Socios de la peña — listado</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; }
+ table { border-collapse: collapse; width: 100%; }
+ th, td { border-bottom: 1px solid #ddd; padding: .3rem .5rem; text-align: left; }
+ nav { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
+ button { font: inherit; padding: .4rem .9rem; }
+</style>
+<body>
+<h1>Socios de la peña</h1>
+<p>Diez socios por página.</p>
+
+<table id="socios">
+ <thead><tr><th>Nº socio</th><th>Nombre</th><th>Localidad</th><th>Alta</th><th>Cuota</th></tr></thead>
+ <tbody id="filas"></tbody>
+</table>
+
+<nav>
+ <button type="button" id="anterior">Anterior</button>
+ <span id="pagina"></span>
+ <button type="button" id="siguiente">Siguiente</button>
+</nav>
+
+<!-- Los socios en orden, tal como se pintan. bench/verify/tabla.py los lee de aquí: es la única copia. -->
+<script type="application/json" id="datos">
+[
+{"Nº socio": "S-1007", "Nombre": "Íñigo Muñoz", "Localidad": "Logroño", "Alta": "04/02/2016", "Cuota": "33,25 €"},
+{"Nº socio": "S-1014", "Nombre": "Peña \"La Tertulia\", S.L.", "Localidad": "A Coruña", "Alta": "07/03/2017", "Cuota": "46,50 €"},
+{"Nº socio": "S-1021", "Nombre": "Zoë Martín", "Localidad": "L'Hospitalet de Llobregat", "Alta": "10/04/2018", "Cuota": "59,75 €"},
+{"Nº socio": "S-1028", "Nombre": "Óscar Núñez", "Localidad": "Cádiz", "Alta": "13/05/2019", "Cuota": "72,00 €"},
+{"Nº socio": "S-1035", "Nombre": "Ana García, hija", "Localidad": "Sant Cugat del Vallès", "Alta": "16/06/2020", "Cuota": "25,25 €"},
+{"Nº socio": "S-1042", "Nombre": "Jordi Puig", "Localidad": "Ávila", "Alta": "19/07/2021", "Cuota": "38,50 €"},
+{"Nº socio": "S-1049", "Nombre": "María José Ruiz", "Localidad": "Alcalá de Henares", "Alta": "22/08/2022", "Cuota": "51,75 €"},
+{"Nº socio": "S-1056", "Nombre": "Ángel Díaz", "Localidad": "Logroño", "Alta": "25/09/2023", "Cuota": "64,00 €"},
+{"Nº socio": "S-1063", "Nombre": "Carmen Vidal", "Localidad": "A Coruña", "Alta": "28/10/2024", "Cuota": "77,25 €"},
+{"Nº socio": "S-1070", "Nombre": "Lucía Pérez Gil", "Localidad": "L'Hospitalet de Llobregat", "Alta": "03/11/2015", "Cuota": "30,50 €"},
+{"Nº socio": "S-1077", "Nombre": "Íñigo Muñoz", "Localidad": "Cádiz", "Alta": "06/12/2016", "Cuota": "43,75 €"},
+{"Nº socio": "S-1084", "Nombre": "Peña \"La Tertulia\", S.L.", "Localidad": "Sant Cugat del Vallès", "Alta": "09/01/2017", "Cuota": "56,00 €"},
+{"Nº socio": "S-1091", "Nombre": "Zoë Martín", "Localidad": "Ávila", "Alta": "12/02/2018", "Cuota": "69,25 €"},
+{"Nº socio": "S-1098", "Nombre": "Óscar Núñez", "Localidad": "Alcalá de Henares", "Alta": "15/03/2019", "Cuota": "22,50 €"},
+{"Nº socio": "S-1105", "Nombre": "Ana García, hija", "Localidad": "Logroño", "Alta": "18/04/2020", "Cuota": "35,75 €"},
+{"Nº socio": "S-1112", "Nombre": "Jordi Puig", "Localidad": "A Coruña", "Alta": "21/05/2021", "Cuota": "48,00 €"},
+{"Nº socio": "S-1119", "Nombre": "María José Ruiz", "Localidad": "L'Hospitalet de Llobregat", "Alta": "24/06/2022", "Cuota": "61,25 €"},
+{"Nº socio": "S-1126", "Nombre": "Ángel Díaz", "Localidad": "Cádiz", "Alta": "27/07/2023", "Cuota": "74,50 €"},
+{"Nº socio": "S-1133", "Nombre": "Carmen Vidal", "Localidad": "Sant Cugat del Vallès", "Alta": "02/08/2024", "Cuota": "27,75 €"},
+{"Nº socio": "S-1140", "Nombre": "Lucía Pérez Gil", "Localidad": "Ávila", "Alta": "05/09/2015", "Cuota": "40,00 €"},
+{"Nº socio": "S-1147", "Nombre": "Íñigo Muñoz", "Localidad": "Alcalá de Henares", "Alta": "08/10/2016", "Cuota": "53,25 €"},
+{"Nº socio": "S-1154", "Nombre": "Peña \"La Tertulia\", S.L.", "Localidad": "Logroño", "Alta": "11/11/2017", "Cuota": "66,50 €"},
+{"Nº socio": "S-1161", "Nombre": "Zoë Martín", "Localidad": "A Coruña", "Alta": "14/12/2018", "Cuota": "79,75 €"},
+{"Nº socio": "S-1168", "Nombre": "Óscar Núñez", "Localidad": "L'Hospitalet de Llobregat", "Alta": "17/01/2019", "Cuota": "32,00 €"},
+{"Nº socio": "S-1175", "Nombre": "Ana García, hija", "Localidad": "Cádiz", "Alta": "20/02/2020", "Cuota": "45,25 €"},
+{"Nº socio": "S-1182", "Nombre": "Jordi Puig", "Localidad": "Sant Cugat del Vallès", "Alta": "23/03/2021", "Cuota": "58,50 €"},
+{"Nº socio": "S-1189", "Nombre": "María José Ruiz", "Localidad": "Ávila", "Alta": "26/04/2022", "Cuota": "71,75 €"},
+{"Nº socio": "S-1196", "Nombre": "Ángel Díaz", "Localidad": "Alcalá de Henares", "Alta": "01/05/2023", "Cuota": "24,00 €"},
+{"Nº socio": "S-1203", "Nombre": "Carmen Vidal", "Localidad": "Logroño", "Alta": "04/06/2024", "Cuota": "37,25 €"},
+{"Nº socio": "S-1210", "Nombre": "Lucía Pérez Gil", "Localidad": "A Coruña", "Alta": "07/07/2015", "Cuota": "50,50 €"},
+{"Nº socio": "S-1217", "Nombre": "Íñigo Muñoz", "Localidad": "L'Hospitalet de Llobregat", "Alta": "10/08/2016", "Cuota": "63,75 €"},
+{"Nº socio": "S-1224", "Nombre": "Peña \"La Tertulia\", S.L.", "Localidad": "Cádiz", "Alta": "13/09/2017", "Cuota": "76,00 €"},
+{"Nº socio": "S-1231", "Nombre": "Zoë Martín", "Localidad": "Sant Cugat del Vallès", "Alta": "16/10/2018", "Cuota": "29,25 €"},
+{"Nº socio": "S-1238", "Nombre": "Óscar Núñez", "Localidad": "Ávila", "Alta": "19/11/2019", "Cuota": "42,50 €"},
+{"Nº socio": "S-1245", "Nombre": "Ana García, hija", "Localidad": "Alcalá de Henares", "Alta": "22/12/2020", "Cuota": "55,75 €"},
+{"Nº socio": "S-1252", "Nombre": "Jordi Puig", "Localidad": "Logroño", "Alta": "25/01/2021", "Cuota": "68,00 €"},
+{"Nº socio": "S-1259", "Nombre": "María José Ruiz", "Localidad": "A Coruña", "Alta": "28/02/2022", "Cuota": "21,25 €"},
+{"Nº socio": "S-1266", "Nombre": "Ángel Díaz", "Localidad": "L'Hospitalet de Llobregat", "Alta": "03/03/2023", "Cuota": "34,50 €"},
+{"Nº socio": "S-1273", "Nombre": "Carmen Vidal", "Localidad": "Cádiz", "Alta": "06/04/2024", "Cuota": "47,75 €"},
+{"Nº socio": "S-1280", "Nombre": "Lucía Pérez Gil", "Localidad": "Sant Cugat del Vallès", "Alta": "09/05/2015", "Cuota": "60,00 €"},
+{"Nº socio": "S-1287", "Nombre": "Íñigo Muñoz", "Localidad": "Ávila", "Alta": "12/06/2016", "Cuota": "73,25 €"},
+{"Nº socio": "S-1294", "Nombre": "Peña \"La Tertulia\", S.L.", "Localidad": "Alcalá de Henares", "Alta": "15/07/2017", "Cuota": "26,50 €"},
+{"Nº socio": "S-1301", "Nombre": "Zoë Martín", "Localidad": "Logroño", "Alta": "18/08/2018", "Cuota": "39,75 €"},
+{"Nº socio": "S-1308", "Nombre": "Óscar Núñez", "Localidad": "A Coruña", "Alta": "21/09/2019", "Cuota": "52,00 €"},
+{"Nº socio": "S-1315", "Nombre": "Ana García, hija", "Localidad": "L'Hospitalet de Llobregat", "Alta": "24/10/2020", "Cuota": "65,25 €"},
+{"Nº socio": "S-1322", "Nombre": "Jordi Puig", "Localidad": "Cádiz", "Alta": "27/11/2021", "Cuota": "78,50 €"},
+{"Nº socio": "S-1329", "Nombre": "María José Ruiz", "Localidad": "Sant Cugat del Vallès", "Alta": "02/12/2022", "Cuota": "31,75 €"}
+]
+</script>
+
+<script>
+const datos = JSON.parse(document.getElementById('datos').textContent);
+const COLS = ['Nº socio', 'Nombre', 'Localidad', 'Alta', 'Cuota'], POR_PAGINA = 10;
+const PAGINAS = Math.ceil(datos.length / POR_PAGINA);
+let pagina = 1;
+
+const pintar = () => {
+  document.getElementById('filas').replaceChildren(...datos.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(s => {
+    const tr = document.createElement('tr');
+    for (const c of COLS) {
+      const td = document.createElement('td');
+      td.textContent = s[c];
+      tr.append(td);
+    }
+    return tr;
+  }));
+  document.getElementById('pagina').textContent = `Página ${pagina} de ${PAGINAS}`;
+  document.getElementById('anterior').disabled = pagina === 1;
+  document.getElementById('siguiente').disabled = pagina === PAGINAS;
+};
+
+document.getElementById('anterior').addEventListener('click', () => { pagina--; pintar(); });
+// como tantas páginas reales, la siguiente tarda en llegar y mientras sale una fila «Cargando…»
+document.getElementById('siguiente').addEventListener('click', () => {
+  pagina++;
+  const td = document.createElement('td');
+  td.colSpan = COLS.length;
+  td.textContent = 'Cargando…';
+  const tr = document.createElement('tr');
+  tr.append(td);
+  document.getElementById('filas').replaceChildren(tr);
+  setTimeout(pintar, 300);
+});
+pintar();
+</script>
+</body>
+</html>

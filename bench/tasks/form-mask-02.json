@@ -1,0 +1,17 @@
+{
+  "id": "form-mask-02",
+  "instruction": "Abre http://127.0.0.1:8921/mask.html y domicilia un recibo de 1234,56 euros con mi teléfono y mi DNI. Los tres campos reescriben lo que escribes. No lo envíes.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && cp profile.example.toml \"$BENCH_HOME/profile.toml\" && chmod 600 \"$BENCH_HOME/profile.toml\" && rm -f \"$BENCH_HOME/mask.json\" && uv run --project . bench/verify/serve.py --start'",
+  "env": {
+    "MANOS_PROFILE": "$BENCH_HOME/profile.toml"
+  },
+  "verify": "bash -lc 'uv run --project . bench/verify/mask.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\" \"$BENCH_HOME/profile.toml\"'",
+  "tags": [
+    "formularios",
+    "navegador",
+    "mascara"
+  ],
+  "target": "agent",
+  "budget_s": 180
+}

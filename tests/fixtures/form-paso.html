@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Solicitud en dos pasos</title>
+
+<!-- Tres cosas en una página, porque las tres van juntas en la vida real:
+       · un campo OBLIGATORIO dentro de un paso oculto, que es lo que pilló la puerta previa al envío
+         del estudio: el formulario parece completo, `form.checkValidity()` dice que no, y el clic de
+         envío no habría hecho nada;
+       · un campo SIN etiqueta ninguna, para que la cadena de etiquetado caiga hasta `nearby` y se
+         marque de confianza baja;
+       · los cuatro botones de envío con sus cuatro clasificaciones.
+     Esta sí se envía de verdad, contra el `http.server` del test, que contesta 303 a form-ok.html. -->
+
+<main>
+<form id="solicitud" action="/enviar" method="post">
+  <p><label for="correo">Correo electrónico</label>
+     <input id="correo" name="correo" type="email" required></p>
+
+  Referencia interna
+  <input id="suelto" name="suelto" type="text">
+
+  <div id="paso2" hidden>
+    <p><label for="motivo">Motivo de la solicitud</label>
+       <input id="motivo" name="motivo" type="text" minlength="4" required></p>
+  </div>
+
+  <p><button type="submit" id="siguiente">Siguiente</button>
+     <button type="submit" id="guardar">Guardar</button>
+     <button type="submit" id="enviar">Enviar solicitud</button>
+     <button type="submit" id="pagar">Confirmar pedido</button></p>
+</form>
+</main>
+
+<script>
+// El paso 2 se revela cuando el correo valida, que es la forma común de la revelación progresiva.
+document.getElementById('correo').addEventListener('change', ev => {
+  document.getElementById('paso2').hidden = !ev.target.checkValidity();
+});
+</script>
+</html>

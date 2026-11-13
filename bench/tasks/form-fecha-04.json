@@ -1,0 +1,17 @@
+{
+  "id": "form-fecha-04",
+  "instruction": "Abre http://127.0.0.1:8921/fecha-es.html y rellena la solicitud de certificado a mi nombre, con mi fecha de nacimiento en los dos campos que la piden. La cita la quiero para el 3 de febrero de 2027. No la envíes.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && cp profile.example.toml \"$BENCH_HOME/profile.toml\" && chmod 600 \"$BENCH_HOME/profile.toml\" && rm -f \"$BENCH_HOME/fecha-es.json\" && uv run --project . bench/verify/serve.py --start'",
+  "env": {
+    "MANOS_PROFILE": "$BENCH_HOME/profile.toml"
+  },
+  "verify": "bash -lc 'uv run --project . bench/verify/fecha_es.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\" \"$BENCH_HOME/profile.toml\"'",
+  "tags": [
+    "formularios",
+    "navegador",
+    "fecha"
+  ],
+  "target": "agent",
+  "budget_s": 180
+}

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Domiciliación</title>
+
+<!-- El techo de la relectura, campo por campo. Aquí NINGÚN campo lo marca el clasificador —ni
+     «Número de cuenta bancaria» ni «Documento de identidad» emparejan el nivel B— y es el punto: lo
+     que el servidor resuelve desde `{{perfil.clave}}` no puede volverle al modelo por ninguna de estas
+     rutas, y que el clasificador acierte o falle no puede ser lo que lo decida.
+
+     Las rutas, una por elemento:
+       · la relectura de form_fill (los tres campos del perfil);
+       · la comprobación de formato de `dry_run`, que CITA el valor en el mensaje (el `pattern` de
+         «Referencia» rechaza el DNI);
+       · el `validationMessage`, que esta página se escribe a sí misma con el valor dentro, que es lo
+         que hace un sitio de verdad cuando el dato no le cuadra;
+       · la fila `not_filled` de una segunda tanda, que es por donde una FECHA del perfil se emitiría
+         en claro: una fecha es «estructural» y de lo estructural sí sale el valor;
+       · el resultado de form_submit: la url de aterrizaje lleva los valores en la query (el formulario
+         es `method=get`, como media administración), y la página los repite en un `role=status` y como
+         identificador de confirmación. -->
+
+<main>
+<form id="f" method="get" action="/form-perfil.html">
+  <p><label for="cuenta">Número de cuenta bancaria</label>
+     <input id="cuenta" name="cuenta" type="text" size="34"></p>
+
+  <p><label for="doc">Documento de identidad</label>
+     <input id="doc" name="doc" type="text" maxlength="9"></p>
+
+  <p><label for="nac">Fecha de nacimiento</label>
+     <input id="nac" name="nac" type="date"></p>
+
+  <p><label for="ref">Referencia</label>
+     <input id="ref" name="ref" type="text" pattern="PAT-[0-9]{4}"></p>
+
+  <p><label for="razon">Razón</label>
+     <input id="razon" name="razon" type="text" required></p>
+
+  <p><button type="submit" id="enviar">Enviar solicitud</button></p>
+</form>
+<p id="eco" role="status"></p>
+</main>
+
+<script>
+// La página se escribe su propio mensaje de error con el valor dentro.
+const doc = document.getElementById('doc');
+doc.addEventListener('input', () => doc.setCustomValidity(
+    doc.value ? '«' + doc.value + '» no consta en el registro' : ''));
+
+// Y, tras enviar, lo repite como texto suyo y como identificador de confirmación.
+const q = new URLSearchParams(location.search);
+if (q.get('cuenta'))
+  document.getElementById('eco').textContent =
+      'Hemos recibido su solicitud. Referencia: ' + q.get('cuenta') + ' · documento ' + q.get('doc');
+</script>
+</html>

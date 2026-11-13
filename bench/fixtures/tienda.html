@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Ferretería Gil — tienda en línea</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 44rem; margin: 2rem auto; padding: 0 1rem; }
+ table { border-collapse: collapse; width: 100%; }
+ th, td { border-bottom: 1px solid #ddd; padding: .3rem .5rem; text-align: left; }
+ td.precio { text-align: right; white-space: nowrap; }
+ #carrito { background: #f4f4f4; padding: .5rem 1rem; margin-bottom: 1rem; }
+ nav { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
+ button { font: inherit; padding: .2rem .7rem; }
+</style>
+<body>
+<h1>Ferretería Gil</h1>
+<section id="carrito" aria-label="Carrito">
+ <h2>Carrito</h2>
+ <ul id="lineas"></ul>
+ <button type="button" id="vaciar">Vaciar carrito</button>
+</section>
+
+<table>
+ <thead><tr><th>Artículo</th><th>Precio</th><th></th></tr></thead>
+ <tbody id="filas"></tbody>
+</table>
+<nav>
+ <button type="button" id="anterior">Anterior</button>
+ <span id="pagina"></span>
+ <button type="button" id="siguiente">Siguiente</button>
+</nav>
+
+<!-- El catálogo. bench/verify/tienda.py lo lee de aquí: es la única copia. -->
+<script type="application/json" id="datos">
+[
+{"sku": "HER-1011", "nombre": "Juego de brocas 1200 W", "precio": 180.36},
+{"sku": "HER-1041", "nombre": "Amoladora pack 2", "precio": 231.88},
+{"sku": "HER-1077", "nombre": "Llave inglesa compacto", "precio": 182.16},
+{"sku": "HER-1117", "nombre": "Lijadora orbital 1200 W", "precio": 223.66},
+{"sku": "HER-1120", "nombre": "Atornillador 1200 W", "precio": 229.44},
+{"sku": "HER-1154", "nombre": "Taladro 18 V", "precio": 92.39},
+{"sku": "HER-1188", "nombre": "Taladro 1200 W", "precio": 16.17},
+{"sku": "HER-1196", "nombre": "Sierra de calar 1200 W", "precio": 41.06},
+{"sku": "HER-1229", "nombre": "Amoladora 18 V", "precio": 203.68},
+{"sku": "HER-1242", "nombre": "Atornillador pack 2", "precio": 140.07},
+{"sku": "HER-1279", "nombre": "Pistola de silicona con maletín", "precio": 176.55},
+{"sku": "HER-1302", "nombre": "Caja de herramientas 500 W", "precio": 97.2},
+{"sku": "HER-1321", "nombre": "Nivel láser compacto", "precio": 187.16},
+{"sku": "HER-1359", "nombre": "Caja de herramientas doméstico", "precio": 182.57},
+{"sku": "HER-1368", "nombre": "Juego de brocas 500 W", "precio": 21.32},
+{"sku": "HER-1399", "nombre": "Nivel láser profesional", "precio": 95.35},
+{"sku": "HER-1439", "nombre": "Taladro pack 2", "precio": 174.5},
+{"sku": "HER-1443", "nombre": "Sierra de calar con maletín", "precio": 230.23},
+{"sku": "HER-1453", "nombre": "Atornillador 18 V", "precio": 227.99},
+{"sku": "HER-1464", "nombre": "Amoladora compacto", "precio": 169.03},
+{"sku": "HER-1496", "nombre": "Caja de herramientas compacto", "precio": 122.87},
+{"sku": "HER-1517", "nombre": "Amoladora doméstico", "precio": 132.9},
+{"sku": "HER-1523", "nombre": "Cinta métrica inalámbrico", "precio": 168.53},
+{"sku": "HER-1560", "nombre": "Juego de brocas pack 2", "precio": 123.23},
+{"sku": "HER-2408", "nombre": "Taladro percutor 800 W (reacondicionado)", "precio": 39.95},
+{"sku": "HER-1581", "nombre": "Martillo 500 W", "precio": 121.12},
+{"sku": "HER-1606", "nombre": "Pistola de silicona 18 V", "precio": 187.28},
+{"sku": "HER-1633", "nombre": "Cinta métrica 500 W", "precio": 4.86},
+{"sku": "HER-1642", "nombre": "Llave inglesa 500 W", "precio": 59.24},
+{"sku": "HER-1655", "nombre": "Martillo doméstico", "precio": 229.54},
+{"sku": "HER-1677", "nombre": "Atornillador profesional", "precio": 32.38},
+{"sku": "HER-1709", "nombre": "Nivel láser 1200 W", "precio": 136.57},
+{"sku": "HER-1718", "nombre": "Taladro con maletín", "precio": 120.44},
+{"sku": "HER-1754", "nombre": "Juego de brocas 18 V", "precio": 62.1},
+{"sku": "HER-1785", "nombre": "Cinta métrica doméstico", "precio": 184.51},
+{"sku": "HER-1801", "nombre": "Sierra de calar inalámbrico", "precio": 64.91},
+{"sku": "HER-1836", "nombre": "Sierra de calar doméstico", "precio": 227.78},
+{"sku": "HER-1848", "nombre": "Caja de herramientas profesional", "precio": 231.07},
+{"sku": "HER-1885", "nombre": "Atornillador 500 W", "precio": 208.91},
+{"sku": "HER-1914", "nombre": "Llave inglesa 1200 W", "precio": 202.86},
+{"sku": "HER-1929", "nombre": "Lijadora orbital profesional", "precio": 91.31},
+{"sku": "HER-1966", "nombre": "Martillo compacto", "precio": 44.06},
+{"sku": "HER-1987", "nombre": "Caja de herramientas 1200 W", "precio": 32.46},
+{"sku": "HER-1993", "nombre": "Nivel láser 500 W", "precio": 203.97},
+{"sku": "HER-1997", "nombre": "Nivel láser inalámbrico", "precio": 86.07},
+{"sku": "HER-2029", "nombre": "Cinta métrica con maletín", "precio": 119.56},
+{"sku": "HER-2039", "nombre": "Caja de herramientas inalámbrico", "precio": 10.84},
+{"sku": "HER-2074", "nombre": "Amoladora 1200 W", "precio": 71.78},
+{"sku": "HER-2084", "nombre": "Atornillador compacto", "precio": 126.84},
+{"sku": "HER-2114", "nombre": "Cinta métrica profesional", "precio": 58.56},
+{"sku": "HER-2121", "nombre": "Nivel láser pack 2", "precio": 181.52},
+{"sku": "HER-2141", "nombre": "Lijadora orbital 500 W", "precio": 42.46},
+{"sku": "HER-2174", "nombre": "Martillo 18 V", "precio": 185.7},
+{"sku": "HER-2186", "nombre": "Pistola de silicona 500 W", "precio": 89.99},
+{"sku": "HER-2198", "nombre": "Nivel láser doméstico", "precio": 156.47},
+{"sku": "HER-2214", "nombre": "Sierra de calar compacto", "precio": 61.14},
+{"sku": "HER-2217", "nombre": "Juego de brocas profesional", "precio": 132.33},
+{"sku": "HER-2238", "nombre": "Caja de herramientas con maletín", "precio": 188.88},
+{"sku": "HER-2272", "nombre": "Martillo pack 2", "precio": 232.81},
+{"sku": "HER-2286", "nombre": "Llave inglesa con maletín", "precio": 235.47},
+{"sku": "HER-2302", "nombre": "Amoladora inalámbrico", "precio": 185.92},
+{"sku": "HER-2310", "nombre": "Llave inglesa 18 V", "precio": 88.92},
+{"sku": "HER-2322", "nombre": "Amoladora con maletín", "precio": 70.2},
+{"sku": "HER-2362", "nombre": "Martillo profesional", "precio": 236.43},
+{"sku": "HER-2391", "nombre": "Cinta métrica pack 2", "precio": 238.96},
+{"sku": "HER-6517", "nombre": "Taladro percutor 800 W", "precio": 64.9},
+{"sku": "HER-2415", "nombre": "Amoladora 500 W", "precio": 72.12},
+{"sku": "HER-2454", "nombre": "Llave inglesa pack 2", "precio": 237.01},
+{"sku": "HER-2461", "nombre": "Cinta métrica 18 V", "precio": 223.61},
+{"sku": "HER-2487", "nombre": "Juego de brocas con maletín", "precio": 172.63},
+{"sku": "HER-2502", "nombre": "Sierra de calar 18 V", "precio": 195.62},
+{"sku": "HER-2514", "nombre": "Lijadora orbital con maletín", "precio": 188.86},
+{"sku": "HER-2527", "nombre": "Caja de herramientas pack 2", "precio": 153.19},
+{"sku": "HER-2531", "nombre": "Lijadora orbital 18 V", "precio": 146.03},
+{"sku": "HER-2557", "nombre": "Lijadora orbital doméstico", "precio": 123.39},
+{"sku": "HER-2574", "nombre": "Nivel láser 18 V", "precio": 145.71},
+{"sku": "HER-2589", "nombre": "Llave inglesa doméstico", "precio": 232.34},
+{"sku": "HER-2629", "nombre": "Taladro 500 W", "precio": 34.66},
+{"sku": "HER-2645", "nombre": "Pistola de silicona pack 2", "precio": 28.93},
+{"sku": "HER-2677", "nombre": "Llave inglesa inalámbrico", "precio": 204.14}
+]
+</script>
+
+<script>
+// Comprar a mano es tedioso a propósito: 10 por página, sin buscador y «Añadir» suma una unidad. La tienda
+// declara además sus tools WebMCP (document.modelContext), que hacen lo mismo en una llamada.
+// El carrito se apunta en /state/tienda-carrito (serve.py reescribe /state/tienda con el testigo).
+const datos = JSON.parse(document.getElementById('datos').textContent);
+const porSku = new Map(datos.map(p => [p.sku, p]));
+const POR_PAGINA = 10, PAGINAS = Math.ceil(datos.length / POR_PAGINA);
+const euros = new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR'});
+const carrito = {};
+let pagina = 1, pedido = false;
+
+const guardar = () => fetch('/state/tienda-carrito', {method: 'POST', body: JSON.stringify({lineas: carrito, pedido})});
+const resumen = () => Object.entries(carrito).map(([sku, n]) => `${porSku.get(sku).nombre} (${sku}) × ${n}`);
+
+const pintarCarrito = () => {
+  const lineas = resumen();
+  document.getElementById('lineas').replaceChildren(...(lineas.length ? lineas : ['Vacío']).map(t => {
+    const li = document.createElement('li'); li.textContent = t; return li;
+  }));
+  guardar();
+};
+
+const anadir = (sku, n) => { carrito[sku] = (carrito[sku] || 0) + n; pintarCarrito(); };
+
+const pintar = () => {
+  const filas = datos.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+  document.getElementById('filas').replaceChildren(...filas.map(p => {
+    const tr = document.createElement('tr');
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = 'Añadir'; b.setAttribute('aria-label', `Añadir ${p.nombre}`);
+    b.addEventListener('click', () => anadir(p.sku, 1));
+    for (const [txt, cls] of [[p.nombre, ''], [euros.format(p.precio), 'precio']]) {
+      const td = document.createElement('td'); td.textContent = txt; if (cls) td.className = cls; tr.append(td);
+    }
+    const td = document.createElement('td'); td.append(b); tr.append(td);
+    return tr;
+  }));
+  document.getElementById('pagina').textContent = `Página ${pagina} de ${PAGINAS}`;
+  document.getElementById('anterior').disabled = pagina === 1;
+  document.getElementById('siguiente').disabled = pagina === PAGINAS;
+};
+
+document.getElementById('anterior').addEventListener('click', () => { pagina--; pintar(); });
+document.getElementById('siguiente').addEventListener('click', () => { pagina++; pintar(); });
+document.getElementById('vaciar').addEventListener('click', () => {
+  for (const k of Object.keys(carrito)) delete carrito[k];
+  pintarCarrito();
+});
+pintar();
+pintarCarrito();
+
+const texto = o => ({content: [{type: 'text', text: typeof o === 'string' ? o : JSON.stringify(o)}]});
+const plano = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const mc = document.modelContext;
+if (mc) {
+  mc.registerTool({
+    name: 'buscar_producto', description: 'Busca en el catálogo por nombre. Devuelve hasta 10 artículos con sku, nombre y precio.',
+    inputSchema: {type: 'object', properties: {q: {type: 'string', description: 'Texto a buscar'}}, required: ['q']},
+    execute: ({q}) => texto(datos.filter(p => plano(p.nombre).includes(plano(String(q)))).slice(0, 10))});
+  mc.registerTool({
+    name: 'anadir_al_carrito', description: 'Añade unidades de un artículo al carrito, por su sku.',
+    inputSchema: {type: 'object', properties: {sku: {type: 'string'}, cantidad: {type: 'integer', minimum: 1, maximum: 20}},
+                  required: ['sku', 'cantidad']},
+    execute: ({sku, cantidad}) => {
+      const n = Number(cantidad);
+      if (!porSku.has(sku)) return {content: [{type: 'text', text: `No existe el sku ${sku}`}], isError: true};
+      if (!Number.isInteger(n) || n < 1 || n > 20) return {content: [{type: 'text', text: 'cantidad: entero de 1 a 20'}], isError: true};
+      anadir(sku, n);
+      return texto({carrito: resumen()});
+    }});
+  mc.registerTool({
+    name: 'ver_carrito', description: 'Lo que hay en el carrito.',
+    inputSchema: {type: 'object', properties: {}}, execute: () => texto({carrito: resumen()})});
+  mc.registerTool({
+    name: 'confirmar_pedido', description: 'Cierra la compra y cobra lo que hay en el carrito.',
+    inputSchema: {type: 'object', properties: {}},
+    execute: () => { pedido = true; guardar(); return texto('Pedido confirmado'); }});
+}
+</script>
+</body>
+</html>

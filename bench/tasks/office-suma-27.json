@@ -1,0 +1,13 @@
+{
+  "id": "office-suma-27",
+  "instruction": "Crea en el directorio de trabajo una hoja de cálculo suma.xlsx con los números 10, 20, 30, 40 y 50 en las celdas A1 a A5 y, en A6, una fórmula que los sume. Al final, dime cuánto da A6.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/suma.xlsx\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/suma.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "ofimatica",
+    "fichero"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

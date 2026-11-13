@@ -1,0 +1,16 @@
+[project]
+name = "manos"
+version = "0.1.0"
+description = "Servidor MCP de computer use para KDE Plasma 6 sobre Wayland"
+requires-python = ">=3.14"
+dependencies = [
+    "mcp",
+    "playwright==1.64.1",
+    "dbus-python",
+    "pillow>=13.0.0",
+]
+# PyGObject no está: nada del venv lo importa. Pillow es del recorte y reescalado de la captura de
+# escritorio (desktop/capture.py, P3). dbus-python es el D-Bus de kwin.py y desktop/.
+
+[tool.uv]
+package = false  # flat modules run from this directory; nothing to build or install

@@ -1,0 +1,14 @@
+{
+  "id": "kcalc-cuenta-09",
+  "instruction": "Con la calculadora KCalc, calcula (17 × 23) − 45 pulsando sus botones, y dime el resultado que muestra.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/kcalc.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "desktop",
+    "rung2",
+    "kcalc"
+  ],
+  "target": "agent",
+  "budget_s": 180
+}

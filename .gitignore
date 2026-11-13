@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.ruff_cache/
+bench/run/
+bench/results/
+research/
+PLAN.md
+docs/knowledge.md
+docs/prueba-real.md
+docs/p3-design.md
+panic/*.bak
+tests/_probe_*.py

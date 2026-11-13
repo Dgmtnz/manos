@@ -1,0 +1,17 @@
+{
+  "id": "form-shadow-05",
+  "instruction": "Abre http://127.0.0.1:8921/shadow.html y pide la devolución del pedido con mi correo y mi cuenta bancaria. El titular de la cuenta soy yo. No la envíes.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && cp profile.example.toml \"$BENCH_HOME/profile.toml\" && chmod 600 \"$BENCH_HOME/profile.toml\" && rm -f \"$BENCH_HOME/shadow.json\" && uv run --project . bench/verify/serve.py --start'",
+  "env": {
+    "MANOS_PROFILE": "$BENCH_HOME/profile.toml"
+  },
+  "verify": "bash -lc 'uv run --project . bench/verify/shadow.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\" \"$BENCH_HOME/profile.toml\"'",
+  "tags": [
+    "formularios",
+    "navegador",
+    "shadow-dom"
+  ],
+  "target": "agent",
+  "budget_s": 180
+}

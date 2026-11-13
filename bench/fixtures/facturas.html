@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Portal de clientes — Facturación</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; }
+ table { border-collapse: collapse; width: 100%; }
+ th, td { border-bottom: 1px solid #ddd; padding: .3rem .5rem; text-align: left; }
+ td:last-child, th:last-child { text-align: right; }
+ iframe { width: 100%; height: 260px; border: 1px solid #bbb; }
+ .pista { color: #666; font-size: .85em; }
+</style>
+<body>
+<h1>Facturación</h1>
+
+<h2>Facturas del 4.º trimestre</h2>
+<p class="pista">El visor lo sirve el programa de contabilidad. Desplázate dentro de él para ver todas.</p>
+<!-- Otro origen a propósito: la página es 127.0.0.1 y el visor localhost, así que el iframe va en su
+     propio proceso de renderizado (OOPIF) y nada del documento de arriba llega a su DOM. -->
+<iframe src="http://localhost:8921/facturas-visor.html" title="Visor de facturas del 4.º trimestre"></iframe>
+
+<h2>Archivo del 3.er trimestre</h2>
+<table>
+ <thead><tr><th>Número</th><th>Cliente</th><th>Estado</th><th>Importe</th></tr></thead>
+ <tbody>
+  <tr><td>F-2026-0371</td><td>Hostal Las Dunas</td><td>Pendiente</td><td>640,00 €</td></tr>
+  <tr><td>F-2026-0377</td><td>Talleres Ruiz, S.L.</td><td>Cobrada</td><td>1980,40 €</td></tr>
+  <tr><td>F-2026-0383</td><td>Clínica Dental Sonrisa</td><td>Pendiente</td><td>212,30 €</td></tr>
+  <tr><td>F-2026-0390</td><td>Bar El Rincón</td><td>Pendiente</td><td>95,00 €</td></tr>
+ </tbody>
+</table>
+</body>
+</html>

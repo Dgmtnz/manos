@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Reformas Segura · Presupuesto sin compromiso</title>
+<style>
+ body { font: 15px/1.6 system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+ section { min-height: 70vh; }
+ label { display: block; margin-top: .8rem; }
+ input, select { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+ button { font: inherit; padding: .4rem .9rem; margin-top: 1rem; }
+ #respuesta { margin-top: 1.2rem; padding: .8rem 1rem; border: 1px solid #2a7; }
+ .aviso-cookies { position: fixed; inset: 0; background: rgba(20, 20, 20, .6); z-index: 50;
+                  display: flex; align-items: center; justify-content: center; }
+ .aviso-cookies > div { background: #fff; max-width: 30rem; padding: 1.5rem 2rem; border-radius: 6px; }
+</style>
+<body>
+<h1>Reformas Segura</h1>
+<section>
+ <h2>Quiénes somos</h2>
+ <p>Más de veinte años reformando viviendas en la Región de Murcia. Trabajamos con cuadrillas propias, sin
+    subcontratas, y damos tres años de garantía en mano de obra.</p>
+ <p>Cada obra tiene un encargado que te llama una vez por semana con el avance y las decisiones pendientes.</p>
+</section>
+<section>
+ <h2>Qué hacemos</h2>
+ <p>Baños completos en diez días laborables, cocinas con mobiliario a medida y reformas integrales con
+    licencia de obra incluida. Visitamos la vivienda gratis antes de presupuestar.</p>
+ <p>Plazos de pago: 30 % al empezar, 40 % a mitad de obra y 30 % a la entrega.</p>
+</section>
+<section id="presupuesto">
+ <h2>Pide tu presupuesto sin compromiso</h2>
+ <label>Nombre y apellidos <input name="nombre" autocomplete="off"></label>
+ <label>Teléfono <input name="telefono" type="tel" pattern="[0-9]{9}" autocomplete="off"></label>
+ <label>Tipo de reforma
+  <select name="tipo">
+   <option value="">Elige…</option>
+   <option value="bano">Baño</option>
+   <option value="cocina">Cocina</option>
+   <option value="integral">Reforma integral</option>
+  </select></label>
+ <button type="button" id="solicitar">Solicitar presupuesto</button>
+ <p id="respuesta" hidden></p>
+</section>
+
+<div class="aviso-cookies" role="dialog" aria-modal="true" aria-label="Aviso de cookies">
+ <div>
+  <h2>Aviso de cookies</h2>
+  <p>Utilizamos cookies propias y de terceros con fines analíticos y para mostrarte publicidad personalizada.
+     Para seguir navegando, elige una opción.</p>
+  <button type="button" data-v="accept">Aceptar todas</button>
+  <button type="button" data-v="config">Configurar</button>
+  <button type="button" data-v="reject">Rechazar todas</button>
+ </div>
+</div>
+
+<script>
+// Banner genérico en español que además bloquea el scroll hasta que se elige algo: sin quitarlo, el formulario
+// del final no se alcanza. Lo elegido en el banner y cada solicitud se apuntan en /state/reforma-estado.
+const estado = {consent: [], solicitudes: []};
+const apunta = () => fetch('/state/reforma-estado', {method: 'POST', body: JSON.stringify(estado)});
+const $ = s => document.querySelector(s);
+document.documentElement.style.overflow = document.body.style.overflow = 'hidden';
+
+for (const b of document.querySelectorAll('.aviso-cookies button'))
+  b.addEventListener('click', () => {
+    estado.consent.push(b.dataset.v);
+    apunta();
+    if (b.dataset.v === 'config') return;
+    $('.aviso-cookies').remove();
+    document.documentElement.style.overflow = document.body.style.overflow = '';
+  });
+
+$('#solicitar').addEventListener('click', () => {
+  const nombre = $('[name=nombre]').value.trim(), telefono = $('[name=telefono]').value.trim(), tipo = $('[name=tipo]').value;
+  const out = $('#respuesta');
+  out.hidden = false;
+  if (!nombre || !/^[0-9]{9}$/.test(telefono) || !tipo) { out.textContent = 'Revisa el nombre, el teléfono (9 cifras) y el tipo de reforma.'; return; }
+  const n = [...(nombre + telefono + tipo)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 90000, 3) + 10000;
+  const numero = 'RF-' + n;
+  out.textContent = `Solicitud registrada con el número ${numero}. Te llamaremos en 48 horas para concertar la visita.`;
+  estado.solicitudes.push({nombre, telefono, tipo, numero});
+  apunta();
+});
+</script>
+</body>
+</html>

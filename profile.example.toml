@@ -1,0 +1,103 @@
+# Tus datos, para que el agente rellene formularios sin preguntártelos cada vez.
+#
+# Cópialo a ~/.config/manos/profile.toml y edítalo. Lo escribes y lo controlas tú: el servidor lo lee y
+# NUNCA lo escribe. Tampoco se raspa nada de tu navegador — ni contraseñas guardadas, ni autofill, ni
+# cartera de KDE. Lo que el agente sabe de ti es exactamente este fichero.
+#
+# ESTE FICHERO NO LLEVA SECRETOS. Ni contraseñas, ni números de tarjeta, ni CVC, ni códigos de un solo
+# uso, ni frases semilla. No es una recomendación: el servidor se niega a cargar el fichero si encuentra
+# una clave que lo parezca (ver «Contrato del cargador» al final). Esos cuatro los teclea una persona en
+# la ventana del agente, en el momento, y no se guardan en ningún sitio: el agente te la pasa
+# (browser_handoff) o la traes tú con Meta+Shift+B, un atajo que asignas una vez en Preferencias del
+# sistema > Atajos tras `panic/manos-summon --install`. Por eso una compra o una transferencia es
+# siempre una operación a dos.
+#
+# Permisos recomendados:  chmod 600 ~/.config/manos/profile.toml
+#
+# En un form_fill los valores se referencian por su clave y los resuelve el servidor:
+#     form_fill(fields=[{"id": 0, "value": "{{perfil.nombre}}"},
+#                       {"id": 7, "value": "{{perfil.direccion.cp}}"}])
+# Tú no ves los valores en el listado; el servidor los sustituye al escribir en la página. Estas son
+# TODAS las claves que existen: una clave que no esté aquí es un error de carga, no un dato nuevo.
+
+# --- Identidad ---------------------------------------------------------------------------------------
+# nombre, apellido1 y apellido2 van por separado porque el Autofill de Chrome tiene modelo de dos
+# apellidos (NAME_FIRST / NAME_LAST_FIRST / NAME_LAST_SECOND) y muchos formularios españoles también.
+# Si un formulario pide un solo campo «Nombre y apellidos», el servidor los une.
+nombre    = "Lucía"
+apellido1 = "Ramírez"
+apellido2 = "Beltrán"
+
+# El DNI/NIE no lo rellena el Autofill de Chrome (rechaza NATIONAL_ID_CARD_NUMBER): lo escribe el bucle
+# determinista. Con la letra, en mayúsculas y sin guiones; el servidor comprueba la letra de control
+# antes de escribirlo, porque un pattern de DNI falla después y sin decir por qué.
+dni = "12345678Z"
+
+# SIEMPRE en ISO (AAAA-MM-DD), aunque aquí las fechas se escriban día/mes/año. El servidor convierte:
+# a un input type=date le da el ISO, y a un campo de texto que pide dd/mm/aaaa le da 25/12/1990.
+nacimiento = "1990-12-25"
+
+# Con prefijo internacional, que es lo correcto para el Autofill. El servidor le quita el +34 antes
+# de teclear cuando el campo pide nueve dígitos: una máscara española se come el prefijo y deja el
+# número truncado.
+telefono = "+34600112233"
+email    = "lucia.ramirez@example.es"
+
+# Para domiciliaciones y devoluciones. El Autofill de Chrome lo rechaza (IBAN_VALUE), así que lo escribe
+# el bucle determinista, en mayúsculas y sin espacios. Quita la línea si no quieres que exista.
+iban = "ES9121000418450200051332"
+
+# Ruta absoluta de un fichero para los campos de subida. Se comprueba que existe y que su extensión
+# encaja con el `accept` del campo antes de mandarlo: una ruta inexistente la acepta el navegador EN
+# SILENCIO, con un fichero de 0 bytes, y el formulario se envía vacío sin que nadie se entere.
+cv = "/home/usuario/Documentos/cv.pdf"
+
+# --- Dirección ---------------------------------------------------------------------------------------
+# Separada en piezas porque los formularios españoles la piden en piezas, y porque el Autofill de Chrome
+# acepta cada una por su nombre (ADDRESS_HOME_STREET_NAME / HOUSE_NUMBER / SUBPREMISE / CITY / STATE /
+# ZIP / COUNTRY). Si el formulario tiene un único campo «Dirección», el servidor compone la línea.
+[direccion]
+via       = "Calle Mayor"   # con el tipo de vía incluido: "Calle", "Avenida", "Plaza"...
+numero    = "14"
+piso      = "3"             # vacío si no aplica. piso + puerta se unen en un solo campo cuando hace falta
+puerta    = "B"
+cp        = "30001"
+municipio = "Murcia"
+provincia = "Murcia"
+pais      = "ES"            # código ISO de dos letras; el servidor lo traduce al texto que pida el select
+
+# --- Contrato del cargador ----------------------------------------------------------------------------
+#
+# 1. El juego de claves es CERRADO: exactamente las de arriba. Una clave desconocida no se ignora, se
+#    rechaza, porque ignorarla convierte una errata en un campo silenciosamente vacío.
+#
+# 2. Se carga todo o nada. Si algo falla no hay valores a medias en memoria y form_fill responde que no
+#    hay perfil, en vez de rellenar media dirección.
+#
+# 3. Una clave desconocida con pinta de secreto se rechaza con un mensaje propio. El detector es el
+#    mismo regex del nivel B del saneado (`browser.sanitize.TIER_B`, que ya existe y ya está medido
+#    contra una página adversaria) aplicado al NOMBRE de la clave; no se escribe un segundo detector.
+#    Las claves documentadas arriba están exentas aunque emparejen, que es el caso de `iban`.
+#
+#    profile.toml:31 — la clave «tarjeta» tiene pinta de secreto, y este fichero no lleva secretos.
+#    Quita esa línea. Las contraseñas, los números de tarjeta, los CVC y los códigos de un solo uso los
+#    teclea una persona en la ventana del agente (browser_handoff o Meta+Shift+B) y no se guardan en
+#    ningún sitio.
+#    No se ha cargado ningún valor del fichero.
+#
+# 4. Una clave desconocida sin pinta de secreto se rechaza diciendo cuál era la parecida:
+#
+#    profile.toml:12 — la clave «telefono_movil» no existe en el perfil. ¿Querías decir «telefono»?
+#    Las claves válidas están en profile.example.toml. No se ha cargado ningún valor del fichero.
+#
+# 5. Un valor que no es una cadena, o un `nacimiento` que no es AAAA-MM-DD, se rechaza igual, nombrando
+#    la línea y el formato esperado.
+#
+# 6. Si el fichero es legible por el grupo o por todos, se carga y se avisa una vez:
+#
+#    aviso: ~/.config/manos/profile.toml es legible por otros usuarios (modo 644). chmod 600 lo arregla.
+#
+# 7. Los valores no entran nunca en el contexto del modelo: viajan de aquí al borde de CDP y se tachan
+#    en cualquier respuesta que los eche de vuelta. El modelo planifica con claves; el servidor rellena
+#    con valores; la relectura de form_fill es el único sitio donde un valor vuelve a verse, y ahí se
+#    ve a propósito, para que una persona pueda confirmarlo antes de enviar.

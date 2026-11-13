@@ -1,0 +1,15 @@
+{
+  "id": "inviable-correo-13",
+  "instruction": "Manda la factura factura.pdf del directorio de trabajo por correo a administracion@example.org, con el asunto «Factura noviembre».",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && printf \"%%PDF-1.4\\n%%%%EOF\\n\" > \"$BENCH_HOME/factura.pdf\" && find \"$BENCH_HOME\" -name \"*.eml\" -delete'",
+  "verify": "bash -lc 'uv run --project . bench/verify/correo.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "desktop",
+    "inviable",
+    "correo"
+  ],
+  "gate": false,
+  "target": "agent",
+  "budget_s": 120
+}

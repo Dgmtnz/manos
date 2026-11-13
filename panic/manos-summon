@@ -1,0 +1,71 @@
+#!/bin/sh
+# Meta+Shift+B: Diego toma el navegador del agente (PLAN §6). Como manos-panic, no pasa por el servidor MCP:
+# escribe el fichero de traspaso (desde ahí toda tool de manos da UserDriving) y trae la ventana con el script
+# KWin de kwin.py. El agente lo recupera con browser_resume, y solo cuando Diego se lo dice.
+#
+# El atajo NO lo registra este script (nada de registerShortcut ni de escribir en ~/.config): --install deja el
+# .desktop y Diego asigna Meta+Shift+B en Preferencias del sistema > Atajos.
+set -u
+
+# El mismo fichero que browser/session.py driving_flag(). Si cambia allí, cambia aquí.
+FLAG="${XDG_DATA_HOME:-$HOME/.local/share}/manos/driving"
+DESKTOP="$HOME/.local/share/applications/org.manos.summon.desktop"
+CHORD='Meta+Shift+B'
+SELF=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
+ROOT=$(dirname "$(dirname "$SELF")")
+# kwin.py solo usa la biblioteca estándar para esto: vale el python del venv o el del sistema.
+PY="$ROOT/.venv/bin/python"
+[ -x "$PY" ] || PY=python3
+
+say() {  # notificación de Plasma si hay notify-send; si no, por salida estándar y sin fallar
+    printf '%s\n%s\n' "$1" "$2"
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send -a manos "$1" "$2" 2>/dev/null || true
+    fi
+}
+
+case "${1-}" in
+--install)
+    mkdir -p "$(dirname "$DESKTOP")"
+    # Exec absoluto: el atajo global no hereda PATH de ningún shell. Sin NoDisplay: si no, Preferencias >
+    # Atajos no lo ofrece al añadir la aplicación.
+    cat > "$DESKTOP" <<DESK
+[Desktop Entry]
+Type=Application
+Name=Tomar el navegador de manos
+Comment=Trae delante el navegador del agente y lo detiene hasta que le digas que siga
+Icon=input-mouse
+Terminal=false
+Exec=$SELF
+DESK
+    echo "instalado: $DESKTOP"
+    echo "Falta el atajo, y lo pones tú: Preferencias del sistema > Teclado > Atajos > Añadir nuevo >"
+    echo "Aplicación > «Tomar el navegador de manos», y en su fila asigna $CHORD."
+    ;;
+"")
+    new=0
+    if [ ! -e "$FLAG" ]; then
+        mkdir -p -m 700 "$(dirname "$FLAG")"
+        printf '{"reason": "Diego pulsó Meta+Shift+B y tomó el navegador", "ts": %s}\n' "$(date +%s)" > "$FLAG"
+        new=1
+    fi
+    "$PY" "$ROOT/kwin.py" --summon-browser >/dev/null
+    rc=$?
+    if [ "$rc" = 0 ]; then
+        say 'manos: el navegador es tuyo' "El agente no lo toca hasta que le digas que siga."
+        exit 0
+    fi
+    if [ "$rc" = 2 ]; then
+        [ "$new" = 1 ] && rm -f "$FLAG"  # no hay navegador: no hay nada que conducir
+        say 'manos: no hay navegador' "El agente no tiene ningún navegador abierto."
+    else
+        # El fichero se queda: puede que la ventana esté a medias en pantalla, y el agente parado es lo seguro.
+        say 'manos: no se pudo traer el navegador' "KWin no lo dejó delante (código $rc). El agente sigue parado."
+    fi
+    exit 1
+    ;;
+*)
+    echo "uso: $(basename "$0") [--install]" >&2
+    exit 2
+    ;;
+esac

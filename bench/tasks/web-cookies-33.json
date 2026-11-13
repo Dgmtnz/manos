@@ -1,0 +1,14 @@
+{
+  "id": "web-cookies-33",
+  "instruction": "Abre http://127.0.0.1:8921/cita.html y pide cita para renovar el DNI en la oficina de Cartagena, a la primera hora libre. Dime el localizador.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && rm -f \"$BENCH_HOME/cita-estado.json\" \"$BENCH_HOME/cita.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/cita.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "cookies"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Visor de facturas</title>
+<style>
+ body { font: 14px/1.5 system-ui, sans-serif; margin: .5rem; }
+ table { border-collapse: collapse; width: 100%; }
+ th, td { border-bottom: 1px solid #ddd; padding: .3rem .5rem; text-align: left; }
+ td.importe, th.importe { text-align: right; white-space: nowrap; }
+</style>
+<body>
+<table>
+ <thead><tr><th>Número</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th class="importe">Importe</th></tr></thead>
+ <tbody id="filas"></tbody>
+</table>
+
+<!-- Las facturas del visor. bench/verify/iframe.py lee de aquí cuáles están pendientes: es la única copia. -->
+<script type="application/json" id="datos">
+[
+{"numero": "F-2026-0402", "cliente": "Hostal Las Dunas", "fecha": "02/10/2026", "estado": "Cobrada", "importe": "780.00"},
+{"numero": "F-2026-0405", "cliente": "Talleres Ruiz, S.L.", "fecha": "05/10/2026", "estado": "Pendiente", "importe": "2315.60"},
+{"numero": "F-2026-0409", "cliente": "Farmacia Lozano", "fecha": "08/10/2026", "estado": "Cobrada", "importe": "149.90"},
+{"numero": "F-2026-0412", "cliente": "Bar El Rincón", "fecha": "13/10/2026", "estado": "Vencida", "importe": "88.00"},
+{"numero": "F-2026-0418", "cliente": "Clínica Dental Sonrisa", "fecha": "16/10/2026", "estado": "Cobrada", "importe": "1204.75"},
+{"numero": "F-2026-0421", "cliente": "Gestoría Marín", "fecha": "20/10/2026", "estado": "Pendiente", "importe": "430.00"},
+{"numero": "F-2026-0426", "cliente": "Hostal Las Dunas", "fecha": "23/10/2026", "estado": "Cobrada", "importe": "655.20"},
+{"numero": "F-2026-0430", "cliente": "Autoescuela Vía Libre", "fecha": "27/10/2026", "estado": "Cobrada", "importe": "310.00"},
+{"numero": "F-2026-0433", "cliente": "Farmacia Lozano", "fecha": "30/10/2026", "estado": "Vencida", "importe": "97.45"},
+{"numero": "F-2026-0437", "cliente": "Panadería Hermanos Gil", "fecha": "04/11/2026", "estado": "Cobrada", "importe": "61.30"},
+{"numero": "F-2026-0441", "cliente": "Bar El Rincón", "fecha": "06/11/2026", "estado": "Pendiente", "importe": "126.80"},
+{"numero": "F-2026-0446", "cliente": "Gestoría Marín", "fecha": "10/11/2026", "estado": "Cobrada", "importe": "430.00"},
+{"numero": "F-2026-0450", "cliente": "Talleres Ruiz, S.L.", "fecha": "13/11/2026", "estado": "Cobrada", "importe": "1876.00"},
+{"numero": "F-2026-0453", "cliente": "Clínica Dental Sonrisa", "fecha": "18/11/2026", "estado": "Pendiente", "importe": "3050.10"},
+{"numero": "F-2026-0458", "cliente": "Autoescuela Vía Libre", "fecha": "24/11/2026", "estado": "Cobrada", "importe": "275.50"},
+{"numero": "F-2026-0462", "cliente": "Panadería Hermanos Gil", "fecha": "01/12/2026", "estado": "Pendiente", "importe": "1019.99"}
+]
+</script>
+
+<script>
+const euros = new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR'});
+document.getElementById('filas').replaceChildren(
+  ...JSON.parse(document.getElementById('datos').textContent).map(f => {
+    const tr = document.createElement('tr');
+    const a = document.createElement('a');
+    a.href = '#' + f.numero;
+    a.textContent = f.numero;
+    tr.append(document.createElement('td'));
+    tr.firstChild.append(a);
+    for (const [txt, cls] of [[f.cliente], [f.fecha], [f.estado], [euros.format(f.importe), 'importe']]) {
+      const td = document.createElement('td');
+      td.textContent = txt;
+      if (cls) td.className = cls;
+      tr.append(td);
+    }
+    return tr;
+  }));
+</script>
+</body>
+</html>

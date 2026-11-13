@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Reclamación de reembolso — adjuntar justificante</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+ section { border: 1px solid #ccc; margin: 0 0 1rem; padding: .6rem 1rem 1rem; }
+ h2 { font-size: 1rem; margin: 0 0 .5rem; }
+ .pista { color: #666; font-size: .85em; }
+ .boton { font: inherit; padding: .5rem 1rem; border: 0; border-radius: 4px; background: #1d5fa8; color: #fff; }
+ .boton:disabled { background: #9ab; }
+ #aviso { font-weight: 600; }
+</style>
+<body>
+<h1>Reclamación de reembolso R-2026-0412</h1>
+<p>Para tramitarla necesitamos el justificante de pago en PDF.</p>
+
+<!-- Los dos <input type=file> van ocultos detrás de un botón con estilo, como en tantas webs: ninguno tiene
+     caja visible a la que apuntar. El primero es el señuelo: solo admite imágenes. -->
+<section>
+ <h2>Foto del DNI (opcional)</h2>
+ <button type="button" class="boton" id="btn-foto">Añadir foto del DNI</button>
+ <input type="file" id="foto" name="foto" accept="image/*" hidden>
+ <p class="pista" id="nombre-foto">Solo imágenes JPG o PNG.</p>
+</section>
+
+<section>
+ <h2>Justificante de pago *</h2>
+ <button type="button" class="boton" id="btn-justificante">Subir justificante</button>
+ <input type="file" id="justificante" name="justificante" accept="application/pdf,.pdf" hidden>
+ <p class="pista" id="nombre-justificante">Ningún archivo seleccionado.</p>
+</section>
+
+<button type="button" class="boton" id="confirmar" disabled>Confirmar envío</button>
+<p id="aviso" role="status"></p>
+
+<script>
+// La página se apunta a sí misma en /state/justificante-envio: lo que intentó entrar por la foto y cada
+// envío confirmado con los bytes del fichero en base64, para que el verificador compare byte a byte.
+const $ = id => document.getElementById(id);
+const S = {foto_intentos: [], envios: []};
+const apuntar = () => fetch('/state/justificante-envio', {method: 'POST', body: JSON.stringify(S)});
+
+$('btn-foto').addEventListener('click', () => $('foto').click());
+$('btn-justificante').addEventListener('click', () => $('justificante').click());
+
+$('foto').addEventListener('change', () => {
+  const f = $('foto').files[0];
+  if (!f) return;
+  S.foto_intentos.push(f.name);
+  if (!f.type.startsWith('image/')) {
+    $('foto').value = '';
+    $('nombre-foto').textContent = `«${f.name}» no es una imagen. Solo JPG o PNG.`;
+  } else {
+    $('nombre-foto').textContent = f.name;
+  }
+  apuntar();
+});
+
+$('justificante').addEventListener('change', () => {
+  const f = $('justificante').files[0];
+  const pdf = f && (f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
+  $('nombre-justificante').textContent = !f ? 'Ningún archivo seleccionado.'
+    : pdf ? `${f.name} · ${(f.size / 1024).toFixed(1).replace('.', ',')} KB` : `«${f.name}» no es un PDF.`;
+  if (f && !pdf) $('justificante').value = '';
+  $('confirmar').disabled = !pdf;
+});
+
+$('confirmar').addEventListener('click', () => {
+  const f = $('justificante').files[0];
+  const lector = new FileReader();
+  lector.onload = () => {
+    S.envios.push({nombre: f.name, tamano: f.size, b64: lector.result.split(',')[1]});
+    apuntar();
+    $('confirmar').disabled = true;
+    $('aviso').textContent = 'Justificante recibido. Revisaremos la reclamación en 48 horas.';
+  };
+  lector.readAsDataURL(f);
+});
+</script>
+</body>
+</html>

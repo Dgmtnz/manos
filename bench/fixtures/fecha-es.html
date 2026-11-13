@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Solicitud — fechas en formato español</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+ label { display: block; margin-top: .8rem; }
+ input, select, textarea { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+ input[type=checkbox] { width: auto; }
+ .pista { color: #666; font-size: .85em; }
+ fieldset { border: 1px solid #ccc; margin: 0 0 1rem; padding: .6rem 1rem 1rem; }
+ legend { font-weight: 600; }
+ button { font: inherit; padding: .4rem .9rem; }
+</style>
+<body>
+<h1>Solicitud de certificado</h1>
+<p class="pista">Las fechas en formato día/mes/año.</p>
+
+<form id="certificado" action="/no-se-envia" method="post">
+ <label>Nombre y apellidos *
+  <input name="titular" type="text" required maxlength="80"></label>
+
+ <label>Fecha de nacimiento (dd/mm/aaaa) *
+  <input name="nacimiento" type="text" required pattern="\d{2}/\d{2}/\d{4}" maxlength="10"
+         placeholder="dd/mm/aaaa" inputmode="numeric" title="Formato dd/mm/aaaa"></label>
+
+ <label>Fecha de nacimiento, otra vez, en el calendario *
+  <input name="nacimiento_cal" type="date" required min="1900-01-01"></label>
+
+ <label>Fecha para la que se pide la cita (dd/mm/aaaa) *
+  <input name="cita" type="text" required pattern="\d{2}/\d{2}/\d{4}" maxlength="10"
+         placeholder="dd/mm/aaaa" inputmode="numeric" title="Formato dd/mm/aaaa"></label>
+
+ <p><button type="submit">Solicitar</button></p>
+</form>
+</body>
+</html>

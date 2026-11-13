@@ -1,0 +1,15 @@
+{
+  "id": "web-extraer-30",
+  "instruction": "Abre http://127.0.0.1:8921/ventas.html y guarda todas las ventas del listado, de todas sus páginas, en ventas.ndjson en el directorio de trabajo: una venta por línea, cada una tal cual la da la API JSON de la página, en el mismo orden.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/ventas.ndjson\" \"$BENCH_HOME/ventas.ndjson.state.json\" \"$BENCH_HOME/ventas-cupo.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/extraer.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "extraccion",
+    "paginacion"
+  ],
+  "target": "agent",
+  "budget_s": 420
+}

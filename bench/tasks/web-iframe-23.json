@@ -1,0 +1,15 @@
+{
+  "id": "web-iframe-23",
+  "instruction": "Abre http://127.0.0.1:8921/facturas.html. En el visor «Facturas del 4.º trimestre» que va incrustado en la página, busca las facturas en estado «Pendiente» y escríbelas en un fichero pendientes.csv en el directorio de trabajo, con la cabecera numero,cliente,importe, una por línea en el orden del visor y el importe como número con punto decimal (2315.60).",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/pendientes.csv\" \"$BENCH_HOME/facturas.json\" \"$BENCH_HOME/facturas-visor.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/iframe.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "iframe",
+    "otro-origen"
+  ],
+  "target": "agent",
+  "budget_s": 360
+}

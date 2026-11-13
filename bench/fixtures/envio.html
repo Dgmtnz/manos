@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Seguimiento del pedido 7741-2026</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+ dl { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; }
+ dt { color: #555; }
+ dd { margin: 0; font-weight: 600; }
+ .pista { color: #666; font-size: .85em; }
+ #girando { display: inline-block; width: .9em; height: .9em; border: 2px solid #bbb; border-top-color: #1d5fa8;
+            border-radius: 50%; animation: g 1s linear infinite; vertical-align: -2px; }
+ @keyframes g { to { transform: rotate(360deg); } }
+</style>
+<body>
+<h1>Seguimiento del pedido 7741-2026</h1>
+<p class="pista" id="frescura"><span id="girando"></span> Mostrando los datos guardados del 10/11/2026 ·
+ actualizando…</p>
+
+<dl>
+ <dt>Estado</dt><dd id="estado">En reparto</dd>
+ <dt>Punto de recogida</dt><dd id="punto">Librería Arco, C/ Mayor 12</dd>
+ <dt>Código de recogida</dt><dd id="codigo">3391-KD</dd>
+ <dt>Recoger hasta</dt><dd id="hasta">—</dd>
+</dl>
+
+<button type="button" id="ayuda">¿Necesitas ayuda?</button>
+
+<script>
+// Primero se pintan los datos guardados de ayer (otro punto, otro código) y solo tras ESPERA_MS llega la
+// respuesta del XHR con los de verdad: quien responda con la primera observación da un código que ya no
+// vale. Los datos buenos existen solo en /envio-datos.json. Al pintarlos, la página apunta la hora en
+// /state/envio-xhr para que el verificador compruebe que hubo una observación posterior.
+const ESPERA_MS = 2000;  // la perilla: si el bench muestra que el primer vistazo ya llega tarde, súbela
+setTimeout(() => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', '/envio-datos.json');
+  xhr.responseType = 'json';
+  xhr.onload = () => {
+    const d = xhr.response;
+    for (const k of ['estado', 'punto', 'codigo', 'hasta']) document.getElementById(k).textContent = d[k];
+    document.getElementById('frescura').textContent = 'Actualizado ahora mismo.';
+    fetch('/state/envio-xhr', {method: 'POST', body: JSON.stringify({cargado: Date.now() / 1000})});
+  };
+  xhr.send();
+}, ESPERA_MS);
+</script>
+</body>
+</html>

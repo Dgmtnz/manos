@@ -1,0 +1,14 @@
+{
+  "id": "kwrite-nota-07",
+  "instruction": "Abre KWrite y escribe esta nota de dos líneas, exactamente así:\n\nReunión el jueves a las 10:30.\nTraer el informe de ventas.\n\nGuárdala como nota.txt en el directorio de trabajo. Guárdala desde el propio KWrite, no escribiendo el fichero por otro lado.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/nota.txt\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/nota.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "desktop",
+    "rung1",
+    "kwrite"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

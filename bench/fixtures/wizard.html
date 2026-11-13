@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Cita previa — tres pasos</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+ label { display: block; margin-top: .8rem; }
+ input, select, textarea { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+ input[type=checkbox] { width: auto; }
+ .pista { color: #666; font-size: .85em; }
+ fieldset { border: 1px solid #ccc; margin: 0 0 1rem; padding: .6rem 1rem 1rem; }
+ legend { font-weight: 600; }
+ button { font: inherit; padding: .4rem .9rem; }
+</style>
+<body>
+<h1>Cita previa</h1>
+<p class="pista" id="progreso">Paso 1 de 3</p>
+
+<form id="cita" action="/no-se-envia" method="post">
+ <fieldset id="paso1">
+  <legend>Paso 1 · Identificación</legend>
+  <label>Correo electrónico *
+   <input name="email" type="email" required autocomplete="email"></label>
+ </fieldset>
+
+ <fieldset id="paso2" hidden>
+  <legend>Paso 2 · Dónde</legend>
+  <label>Código postal *
+   <input name="cp" type="text" required pattern="[0-9]{5}" inputmode="numeric"
+          placeholder="30001"></label>
+ </fieldset>
+
+ <fieldset id="paso3" hidden>
+  <legend>Paso 3 · Quién</legend>
+  <label>Municipio * <input name="municipio" type="text" required maxlength="60"></label>
+  <label><input name="acepta" type="checkbox" required> Confirmo que los datos son correctos *</label>
+ </fieldset>
+
+ <p><button type="submit">Pedir la cita</button></p>
+</form>
+
+<script>
+// Cada paso aparece solo cuando el anterior VALIDA de verdad (`checkValidity`), no cuando tiene texto.
+// Antes de aparecer, sus campos ya están en el DOM marcados `hidden`, y son la prueba del bloqueo en la
+// puerta previa al envío.
+const puerta = (campo, siguiente, numero) => {
+  const el = document.querySelector(`[name=${campo}]`);
+  const abrir = () => {
+    const ok = el.checkValidity() && el.value !== '';
+    document.getElementById(siguiente).hidden = !ok;
+    if (ok) document.getElementById('progreso').textContent = `Paso ${numero} de 3`;
+  };
+  el.addEventListener('change', abrir);
+  el.addEventListener('input', abrir);
+};
+puerta('email', 'paso2', 2);
+puerta('cp', 'paso3', 3);
+</script>
+</body>
+</html>

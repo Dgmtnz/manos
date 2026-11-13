@@ -1,0 +1,9 @@
+Facturas de octubre · proveedor: Imprenta Soler
+
+Número        Fecha         Importe     Estado
+F-2026-101    03/10/2026    148,35 €
+F-2026-102    09/10/2026     92,10 €
+F-2026-103    15/10/2026    310,00 €    ANULADA (la sustituye la F-2026-106)
+F-2026-104    20/10/2026     57,85 €
+F-2026-105    24/10/2026    204,40 €
+F-2026-106    27/10/2026    289,75 €

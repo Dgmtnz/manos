@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Catálogo de ferretería — 12 páginas</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+ table { border-collapse: collapse; width: 100%; }
+ th, td { border-bottom: 1px solid #ddd; padding: .3rem .5rem; text-align: left; }
+ td.precio, th.precio { text-align: right; white-space: nowrap; }
+ .pista { color: #666; font-size: .85em; }
+ nav { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
+ button { font: inherit; padding: .4rem .9rem; }
+</style>
+<body>
+<h1>Catálogo de ferretería</h1>
+<p class="pista">Precios con IVA. Diez artículos por página.</p>
+
+<table>
+ <thead><tr><th>Referencia</th><th>Artículo</th><th class="precio">Precio</th></tr></thead>
+ <tbody id="filas"></tbody>
+</table>
+
+<nav>
+ <button type="button" id="anterior">Anterior</button>
+ <span id="pagina">Página 1 de 12</span>
+ <button type="button" id="siguiente">Siguiente</button>
+</nav>
+
+<!-- El catálogo sin repeticiones, en orden. bench/verify/paginar.py lo lee de aquí: es la única copia. -->
+<script type="application/json" id="datos">
+[
+{"ref": "CAT-1001", "nombre": "Tirador aluminio 10 mm", "precio": 4.21},
+{"ref": "CAT-1013", "nombre": "Candado latón 1 m", "precio": 30.53},
+{"ref": "CAT-1019", "nombre": "Escuadra reforzada pack 100", "precio": 56.98},
+{"ref": "CAT-1025", "nombre": "Bisagra cazoleta 10 mm", "precio": 44.46},
+{"ref": "CAT-1033", "nombre": "Taco nailon 40 mm", "precio": 29.69},
+{"ref": "CAT-1036", "nombre": "Gancho doble pack 50", "precio": 70.8},
+{"ref": "CAT-1045", "nombre": "Taco nailon 250 g", "precio": 3.84},
+{"ref": "CAT-1050", "nombre": "Cadena galvanizada 25 mm", "precio": 51.25},
+{"ref": "CAT-1056", "nombre": "Clavo acero 10 mm", "precio": 29.92},
+{"ref": "CAT-1065", "nombre": "Escuadra reforzada 250 g", "precio": 87.32},
+{"ref": "CAT-1074", "nombre": "Cadena galvanizada 4 mm", "precio": 53.83},
+{"ref": "CAT-1082", "nombre": "Candado latón 40 mm", "precio": 42.68},
+{"ref": "CAT-1089", "nombre": "Cerradura embutir 60 mm", "precio": 51.54},
+{"ref": "CAT-1093", "nombre": "Cáncamo cerrado 8 mm", "precio": 46.14},
+{"ref": "CAT-1098", "nombre": "Silicona neutra pack 50", "precio": 30.66},
+{"ref": "CAT-1105", "nombre": "Clavo acero 4 mm", "precio": 56.45},
+{"ref": "CAT-1113", "nombre": "Gancho doble 4 mm", "precio": 69.06},
+{"ref": "CAT-1122", "nombre": "Silicona neutra 500 ml", "precio": 46.92},
+{"ref": "CAT-1132", "nombre": "Cáncamo cerrado 60 mm", "precio": 65.43},
+{"ref": "CAT-1135", "nombre": "Cerradura embutir 25 mm", "precio": 61.58},
+{"ref": "CAT-1141", "nombre": "Cinta de carrocero 250 g", "precio": 4.47},
+{"ref": "CAT-1150", "nombre": "Lija al agua 250 g", "precio": 89.33},
+{"ref": "CAT-1155", "nombre": "Bisagra cazoleta 6 mm", "precio": 73.05},
+{"ref": "CAT-1165", "nombre": "Rodillo antigota 6 mm", "precio": 71.08},
+{"ref": "CAT-1172", "nombre": "Cinta de carrocero 4 mm", "precio": 32.61},
+{"ref": "CAT-1176", "nombre": "Cáncamo cerrado 10 mm", "precio": 65.99},
+{"ref": "CAT-1187", "nombre": "Tornillo rosca chapa 6 mm", "precio": 75.54},
+{"ref": "CAT-1189", "nombre": "Burlete adhesivo 8 mm", "precio": 5.29},
+{"ref": "CAT-1198", "nombre": "Gancho doble 60 mm", "precio": 57.55},
+{"ref": "CAT-1205", "nombre": "Cerradura embutir 40 mm", "precio": 58.87},
+{"ref": "CAT-1210", "nombre": "Burlete adhesivo 1 m", "precio": 6.4},
+{"ref": "CAT-1220", "nombre": "Bisagra cazoleta 500 ml", "precio": 22.4},
+{"ref": "CAT-1225", "nombre": "Burlete adhesivo pack 50", "precio": 16.89},
+{"ref": "CAT-1232", "nombre": "Taco nailon 10 mm", "precio": 67.64},
+{"ref": "CAT-1243", "nombre": "Escuadra reforzada 8 mm", "precio": 75.81},
+{"ref": "CAT-1245", "nombre": "Taco nailon 6 mm", "precio": 82.02},
+{"ref": "CAT-1257", "nombre": "Tuerca autoblocante 1 m", "precio": 11.14},
+{"ref": "CAT-1263", "nombre": "Candado latón 25 mm", "precio": 19.92},
+{"ref": "CAT-1271", "nombre": "Tornillo rosca chapa 8 mm", "precio": 82.27},
+{"ref": "CAT-1275", "nombre": "Rodillo antigota pack 50", "precio": 10.84},
+{"ref": "CAT-1285", "nombre": "Brocha plana 6 mm", "precio": 28.42},
+{"ref": "CAT-1290", "nombre": "Candado latón 60 mm", "precio": 44.42},
+{"ref": "CAT-1298", "nombre": "Cerradura embutir 4 mm", "precio": 12.87},
+{"ref": "CAT-1304", "nombre": "Burlete adhesivo 40 mm", "precio": 19.69},
+{"ref": "CAT-1310", "nombre": "Burlete adhesivo 500 ml", "precio": 42.12},
+{"ref": "CAT-1320", "nombre": "Tuerca autoblocante 6 mm", "precio": 29.94},
+{"ref": "CAT-1328", "nombre": "Tornillo rosca chapa 25 mm", "precio": 16.3},
+{"ref": "CAT-1333", "nombre": "Cadena galvanizada 1 m", "precio": 34.38},
+{"ref": "CAT-1338", "nombre": "Cinta de carrocero 40 mm", "precio": 19.6},
+{"ref": "CAT-1344", "nombre": "Clavo acero 1 m", "precio": 41.94},
+{"ref": "CAT-1356", "nombre": "Cola blanca 10 mm", "precio": 18.79},
+{"ref": "CAT-1358", "nombre": "Silicona neutra 6 mm", "precio": 26.2},
+{"ref": "CAT-1369", "nombre": "Cerradura embutir pack 50", "precio": 52.58},
+{"ref": "CAT-1377", "nombre": "Taco nailon 4 mm", "precio": 82.06},
+{"ref": "CAT-1383", "nombre": "Cerradura embutir 250 g", "precio": 46.22},
+{"ref": "CAT-1385", "nombre": "Taco nailon 1 m", "precio": 5.23},
+{"ref": "CAT-1396", "nombre": "Silicona neutra 4 mm", "precio": 35.63},
+{"ref": "CAT-1399", "nombre": "Arandela plana pack 50", "precio": 38.57},
+{"ref": "CAT-1408", "nombre": "Arandela plana 500 ml", "precio": 70.76},
+{"ref": "CAT-1413", "nombre": "Tirador aluminio 40 mm", "precio": 56.43},
+{"ref": "CAT-1420", "nombre": "Silicona neutra pack 100", "precio": 1.84},
+{"ref": "CAT-1433", "nombre": "Candado latón 500 ml", "precio": 59.67},
+{"ref": "CAT-1438", "nombre": "Silicona neutra 10 mm", "precio": 42.82},
+{"ref": "CAT-1445", "nombre": "Cáncamo cerrado 1 m", "precio": 82.24},
+{"ref": "CAT-1451", "nombre": "Tirador aluminio 500 ml", "precio": 31.56},
+{"ref": "CAT-1460", "nombre": "Tuerca autoblocante 60 mm", "precio": 56.59},
+{"ref": "CAT-1464", "nombre": "Bisagra cazoleta 60 mm", "precio": 86.59},
+{"ref": "CAT-1472", "nombre": "Burlete adhesivo pack 100", "precio": 26.85},
+{"ref": "CAT-1482", "nombre": "Bisagra cazoleta 4 mm", "precio": 62.56},
+{"ref": "CAT-1488", "nombre": "Brocha plana 10 mm", "precio": 9.24},
+{"ref": "CAT-1490", "nombre": "Cáncamo cerrado 500 ml", "precio": 25.39},
+{"ref": "CAT-1498", "nombre": "Rodillo antigota 250 g", "precio": 0.45},
+{"ref": "CAT-1510", "nombre": "Cáncamo cerrado 40 mm", "precio": 3.92},
+{"ref": "CAT-1517", "nombre": "Escuadra reforzada 500 ml", "precio": 8.77},
+{"ref": "CAT-1521", "nombre": "Cadena galvanizada 6 mm", "precio": 29.57},
+{"ref": "CAT-1527", "nombre": "Lija al agua 40 mm", "precio": 67.84},
+{"ref": "CAT-1532", "nombre": "Cadena galvanizada 250 g", "precio": 86.46},
+{"ref": "CAT-1543", "nombre": "Gancho doble 40 mm", "precio": 53.14},
+{"ref": "CAT-1548", "nombre": "Cáncamo cerrado pack 50", "precio": 52.99},
+{"ref": "CAT-1557", "nombre": "Lija al agua 4 mm", "precio": 39.42},
+{"ref": "CAT-1564", "nombre": "Cola blanca 4 mm", "precio": 19.66},
+{"ref": "CAT-1569", "nombre": "Brocha plana 25 mm", "precio": 4.26},
+{"ref": "CAT-1575", "nombre": "Escuadra reforzada 1 m", "precio": 54.78},
+{"ref": "CAT-1586", "nombre": "Cerradura embutir 8 mm", "precio": 78.46},
+{"ref": "CAT-1590", "nombre": "Lija al agua 60 mm", "precio": 64.91},
+{"ref": "CAT-1598", "nombre": "Rodillo antigota 8 mm", "precio": 66.46},
+{"ref": "CAT-1606", "nombre": "Lija al agua 10 mm", "precio": 89.02},
+{"ref": "CAT-1609", "nombre": "Cola blanca 250 g", "precio": 61.74},
+{"ref": "CAT-1616", "nombre": "Gancho doble 10 mm", "precio": 15.56},
+{"ref": "CAT-1628", "nombre": "Lija al agua 500 ml", "precio": 23.08},
+{"ref": "CAT-1632", "nombre": "Arandela plana 4 mm", "precio": 42.48},
+{"ref": "CAT-1641", "nombre": "Cola blanca 8 mm", "precio": 18.91},
+{"ref": "CAT-1644", "nombre": "Gancho doble 1 m", "precio": 53.83},
+{"ref": "CAT-1652", "nombre": "Cerradura embutir 500 ml", "precio": 62.08},
+{"ref": "CAT-1661", "nombre": "Bisagra cazoleta pack 50", "precio": 55.99},
+{"ref": "CAT-1671", "nombre": "Burlete adhesivo 60 mm", "precio": 22.01},
+{"ref": "CAT-1672", "nombre": "Clavo acero pack 50", "precio": 88.6},
+{"ref": "CAT-1682", "nombre": "Taco nailon 60 mm", "precio": 75.54},
+{"ref": "CAT-1691", "nombre": "Arandela plana 40 mm", "precio": 34.54},
+{"ref": "CAT-1696", "nombre": "Lija al agua pack 100", "precio": 2.01},
+{"ref": "CAT-1703", "nombre": "Tirador aluminio 1 m", "precio": 13.39},
+{"ref": "CAT-1707", "nombre": "Burlete adhesivo 250 g", "precio": 77.73},
+{"ref": "CAT-1716", "nombre": "Tirador aluminio 4 mm", "precio": 26.82},
+{"ref": "CAT-1725", "nombre": "Cadena galvanizada pack 100", "precio": 32.85},
+{"ref": "CAT-1728", "nombre": "Brocha plana pack 100", "precio": 65.57},
+{"ref": "CAT-1741", "nombre": "Clavo acero 25 mm", "precio": 34.45},
+{"ref": "CAT-1745", "nombre": "Cáncamo cerrado 25 mm", "precio": 48.04},
+{"ref": "CAT-1752", "nombre": "Candado latón 10 mm", "precio": 39.9},
+{"ref": "CAT-1757", "nombre": "Rodillo antigota 1 m", "precio": 61.41},
+{"ref": "CAT-1765", "nombre": "Cola blanca 40 mm", "precio": 68.46},
+{"ref": "CAT-1770", "nombre": "Gancho doble 250 g", "precio": 82.92},
+{"ref": "CAT-1781", "nombre": "Lija al agua pack 50", "precio": 18.16}
+]
+</script>
+
+<script>
+// La paginación es por desplazamiento, como en tantos listados reales: entre la página 6 y la 7 se dio de
+// alta un artículo y el último de la página 6 vuelve a salir el primero de la 7. Por eso se ven 113 filas
+// para 112 artículos, y la página 12 trae solo 3.
+const datos = JSON.parse(document.getElementById('datos').textContent);
+const vista = [...datos.slice(0, 60), datos[59], ...datos.slice(60)];
+const POR_PAGINA = 10, PAGINAS = Math.ceil(vista.length / POR_PAGINA);
+const euros = new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR'});
+let pagina = 1;
+
+const pintar = () => {
+  const filas = vista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+  document.getElementById('filas').replaceChildren(...filas.map(p => {
+    const tr = document.createElement('tr');
+    for (const [txt, cls] of [[p.ref, ''], [p.nombre, ''], [euros.format(p.precio), 'precio']]) {
+      const td = document.createElement('td');
+      td.textContent = txt;
+      if (cls) td.className = cls;
+      tr.append(td);
+    }
+    return tr;
+  }));
+  document.getElementById('pagina').textContent = `Página ${pagina} de ${PAGINAS}`;
+  document.getElementById('anterior').disabled = pagina === 1;
+  document.getElementById('siguiente').disabled = pagina === PAGINAS;
+};
+
+document.getElementById('anterior').addEventListener('click', () => { pagina--; pintar(); });
+document.getElementById('siguiente').addEventListener('click', () => { pagina++; pintar(); });
+pintar();
+</script>
+</body>
+</html>

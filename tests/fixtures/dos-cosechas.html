@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Dos cosechas, un nivel</title>
+
+<!-- El nombre accesible se calcula en dos sitios de este repositorio —`observe.HARVEST.nameOf` y
+     `forms.ADDENDUM.labelOf`— y `sanitize.classify` lee ese nombre para decidir el nivel B. Con
+     precedencias opuestas, el MISMO campo salía `[secreto:B]` por browser_observe y de nivel C por
+     form_describe, y entonces la relectura de form_fill devolvía un número de tarjeta en claro.
+
+     Los dos campos de aquí son el caso cruzado: en el primero la etiqueta sensible está en el
+     `aria-label` y la inocua en el `aria-labelledby`; en el segundo, al revés. Los dos tienen que
+     salir del MISMO nivel por las dos tools, y el nivel tiene que ser B en los dos: el nivel B es una
+     sospecha sobre el texto que describe el campo, y las dos etiquetas lo describen. -->
+
+<form>
+  <span id="inocuo">Referencia del pedido</span>
+  <p><input id="a" name="a" type="text" aria-labelledby="inocuo"
+            aria-label="Código de seguridad de la tarjeta"></p>
+
+  <span id="sensible">Contraseña de un solo uso</span>
+  <p><input id="b" name="b" type="text" aria-labelledby="sensible" aria-label="Referencia"></p>
+</form>
+</html>

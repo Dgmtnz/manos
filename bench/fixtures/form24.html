@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Alta de cliente — 24 campos</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; }
+ fieldset { border: 1px solid #ccc; margin: 0 0 1.2rem; padding: .8rem 1rem 1rem; }
+ legend { font-weight: 600; }
+ label { display: block; margin-top: .7rem; }
+ input, select, textarea { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+ input[type=checkbox], input[type=radio] { width: auto; }
+ .fila { display: flex; gap: .8rem; }
+ .fila > label { flex: 1; }
+ .pista { color: #666; font-size: .85em; }
+ button { font: inherit; padding: .4rem .9rem; margin-right: .5rem; }
+</style>
+<body>
+<h1>Alta de cliente</h1>
+<p class="pista">Todos los campos con * son obligatorios.</p>
+
+<form id="alta" action="/no-se-envia" method="post">
+
+<fieldset>
+ <legend>Datos personales</legend>
+ <div class="fila">
+  <label>Nombre * <input name="nombre" type="text" required maxlength="40" autocomplete="given-name"></label>
+  <label>Primer apellido * <input name="apellido1" type="text" required maxlength="40"></label>
+  <label>Segundo apellido <input name="apellido2" type="text" maxlength="40"></label>
+ </div>
+ <div class="fila">
+  <label>DNI o NIE * <input name="dni" type="text" required pattern="[0-9]{8}[A-Za-z]"
+         maxlength="9" title="Ocho dígitos y la letra, sin guiones"></label>
+  <label>Fecha de nacimiento * <input name="nacimiento" type="date" required min="1900-01-01"></label>
+ </div>
+ <fieldset>
+  <legend>Tipo de cliente *</legend>
+  <label><input name="cliente" type="radio" value="particular" required> Particular</label>
+  <label><input name="cliente" type="radio" value="autonomo"> Autónomo</label>
+  <label><input name="cliente" type="radio" value="empresa"> Empresa</label>
+ </fieldset>
+ <div class="fila">
+  <label>Correo electrónico * <input name="email" type="email" required autocomplete="email"></label>
+  <label>Teléfono * <input name="telefono" type="tel" required pattern="[0-9]{9}"
+         inputmode="numeric" title="Nueve dígitos, sin prefijo"></label>
+ </div>
+</fieldset>
+
+<fieldset>
+ <legend>Domicilio</legend>
+ <div class="fila">
+  <label>Vía * <input name="via" type="text" required maxlength="60"></label>
+  <label>Número * <input name="numero" type="text" required maxlength="5"></label>
+ </div>
+ <div class="fila">
+  <label>Piso <input name="piso" type="text" maxlength="3"></label>
+  <label>Puerta <input name="puerta" type="text" maxlength="3"></label>
+  <label>Código postal * <input name="cp" type="text" required pattern="[0-9]{5}"
+         inputmode="numeric" placeholder="30001"></label>
+ </div>
+ <div class="fila">
+  <label>Municipio * <input name="municipio" type="text" required maxlength="60"></label>
+  <label>Provincia *
+   <select name="provincia" required>
+    <option value="">-- elige --</option>
+    <option value="MU">Murcia</option>
+    <option value="M">Madrid</option>
+    <option value="B">Barcelona</option>
+    <option value="V">Valencia</option>
+   </select>
+  </label>
+  <label>País *
+   <select name="pais" required>
+    <option value="">-- elige --</option>
+    <option value="ES">España</option>
+    <option value="PT">Portugal</option>
+    <option value="FR">Francia</option>
+   </select>
+  </label>
+ </div>
+</fieldset>
+
+<fieldset>
+ <legend>Datos profesionales y bancarios</legend>
+ <label>IBAN * <input name="iban" type="text" required pattern="[A-Z]{2}[0-9]{22}"
+        maxlength="24" title="24 caracteres, sin espacios"></label>
+ <div class="fila">
+  <label>Empresa <input name="empresa" type="text" maxlength="60"></label>
+  <label>Cargo <input name="cargo" type="text" maxlength="60"></label>
+ </div>
+ <label>Página web <input name="web" type="url" placeholder="https://"></label>
+ <p>
+  <button type="button" id="boton-cv">Subir CV</button>
+  <span class="pista">PDF o texto, opcional</span>
+  <input name="cv" type="file" accept=".pdf,.txt" style="display:none">
+ </p>
+</fieldset>
+
+<fieldset>
+ <legend>Preferencias</legend>
+ <label>Comentarios <textarea name="comentarios" rows="3" maxlength="200"></textarea></label>
+ <label>Idioma de contacto
+  <select name="idioma">
+   <option value="es" selected>Español</option>
+   <option value="ca">Catalán</option>
+   <option value="en">Inglés</option>
+  </select>
+ </label>
+ <label><input name="acepta" type="checkbox" required> Acepto las condiciones del servicio *</label>
+</fieldset>
+
+<p>
+ <button type="submit" name="enviar">Enviar</button>
+ <button type="submit" name="guardar" formnovalidate>Guardar borrador</button>
+</p>
+</form>
+
+<script>
+ document.getElementById('boton-cv').addEventListener('click',
+   () => document.querySelector('[name=cv]').click());
+</script>
+</body>
+</html>

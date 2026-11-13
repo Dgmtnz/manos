@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Acciones</title>
+<body>
+<h1>Pruebas de browser_act</h1>
+<p>Texto de la página para el modo texto.</p>
+<label>Nombre <input id="nombre" name="nombre"></label>
+<label>Contraseña <input id="clave" name="clave" type="password"></label>
+<label for="prov">Provincia</label> <select id="prov"><option value="">—</option><option value="M">Madrid</option><option value="MU">Murcia</option></select>
+<label><input type="checkbox" id="acepto"> Acepto las condiciones</label>
+<label>Adjunto <input type="file" id="adjunto"></label>
+<p id="clics">Clics: 0</p>
+<button type="button" id="contar">Contar</button>
+<button type="button" id="nada">Nada</button>
+<table><tr><th>Ref</th><th>Precio</th></tr><tr><td>A-1</td><td>3,50 €</td></tr></table>
+<a href="act2.html">Siguiente página</a>
+<p>Token: zq8-Secreto-77</p>
+<label>Usuario <input id="usuario" name="usuario"></label>
+<button type="button" id="avisar">Avisar</button>
+<button type="button" id="mostrar">Mostrar</button>
+<script>
+let n = 0;
+// el campo Usuario delega el foco en la contraseña (lo que hace más de un formulario de login)
+document.getElementById('usuario').addEventListener('focus', () => document.getElementById('clave').focus());
+document.getElementById('avisar').addEventListener('click', () => alert('hola'));
+document.getElementById('mostrar').addEventListener('click', e => { e.target.textContent = 'Ocultar'; });
+document.getElementById('contar').addEventListener('click', () => {
+  document.getElementById('clics').textContent = 'Clics: ' + (++n);
+});
+</script>
+</body>
+</html>

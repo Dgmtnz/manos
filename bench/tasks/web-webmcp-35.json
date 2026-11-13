@@ -1,0 +1,14 @@
+{
+  "id": "web-webmcp-35",
+  "instruction": "Abre http://127.0.0.1:8921/tienda.html y añade al carrito 3 unidades del «Taladro percutor 800 W» (el nuevo, no el reacondicionado). No hagas el pedido: déjalo en el carrito y dime cómo queda.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/tienda-carrito.json\" \"$BENCH_HOME/tienda.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/tienda.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "webmcp"
+  ],
+  "target": "agent",
+  "budget_s": 360
+}

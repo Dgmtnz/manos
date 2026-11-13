@@ -1,0 +1,17 @@
+{
+  "id": "form-24-01",
+  "instruction": "Abre http://127.0.0.1:8921/form24.html y rellena el alta de cliente con mis datos. Me doy de alta como particular, y el idioma de contacto en español. Acepta las condiciones. Lo que no esté en mi perfil déjalo en blanco. No lo envíes: cuando esté relleno, dime qué has puesto en cada campo.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && cp profile.example.toml \"$BENCH_HOME/profile.toml\" && chmod 600 \"$BENCH_HOME/profile.toml\" && rm -f \"$BENCH_HOME/form24.json\" && uv run --project . bench/verify/serve.py --start'",
+  "env": {
+    "MANOS_PROFILE": "$BENCH_HOME/profile.toml"
+  },
+  "verify": "bash -lc 'uv run --project . bench/verify/form24.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\" \"$BENCH_HOME/profile.toml\"'",
+  "tags": [
+    "formularios",
+    "navegador",
+    "autofill"
+  ],
+  "target": "agent",
+  "budget_s": 300
+}

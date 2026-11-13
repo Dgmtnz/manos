@@ -1,0 +1,17 @@
+{
+  "id": "pedidos-reanudar-20",
+  "instruction": "Una sesión anterior empezó la tarea «avisos-pedidos» de manos y se cortó a medias. Retómala y termínala: en la ventana «Avisos de pedidos», que está abierta, avisa solo de los pedidos que falten. Avisar dos veces al mismo cliente es un error, y la ventana no enseña qué se avisó ya. Ve marcando en la tarea lo que hagas. Por último, escribe con KWrite, en el directorio de trabajo, un fichero avisos-sesion.txt con los números de los pedidos que hayas avisado en esta sesión, uno por línea y de menor a mayor, y guárdalo desde KWrite.",
+  "setup": "bash -lc 'test -n \"$XDG_DATA_HOME\" -a \"$XDG_DATA_HOME\" != \"$HOME/.local/share\" || { echo \"solo dentro de la KWin anidada\" >&2; exit 1; }; mkdir -p \"$BENCH_HOME\" \"$XDG_DATA_HOME/bench\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$XDG_DATA_HOME/bench/pedidos.\"* \"$BENCH_HOME/avisos-sesion.txt\" && /usr/bin/python3 bench/fixtures/pedidos.py --sembrar && setsid -f /usr/bin/python3 bench/fixtures/pedidos.py </dev/null >\"$XDG_DATA_HOME/bench/pedidos.log\" 2>&1 && for i in $(seq 50); do test -s \"$XDG_DATA_HOME/bench/pedidos.pid\" && break; sleep 0.2; done && test -s \"$XDG_DATA_HOME/bench/pedidos.pid\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/pedidos.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$XDG_DATA_HOME/bench/pedidos.pid\" 2>/dev/null)\" 2>/dev/null; true'",
+  "tags": [
+    "desktop",
+    "largo",
+    "rung2",
+    "gtk",
+    "kwrite",
+    "reanudar"
+  ],
+  "target": "agent",
+  "budget_s": 420
+}

@@ -1,0 +1,16 @@
+{
+  "id": "facturas-kcalc-16",
+  "instruction": "En facturas.txt, en el directorio de trabajo, están las facturas de octubre de un proveedor. Suma con la calculadora KCalc, pulsando sus botones, los importes de las facturas que sean válidas. Después, con KWrite, crea en el directorio de trabajo un fichero resumen.txt con estas dos líneas, exactamente con este formato:\n\nFacturas sumadas: <cuántas facturas has sumado>\nTotal: <total> €\n\ncon el total con coma decimal y dos decimales (por ejemplo, 1234,50). Guárdalo desde el propio KWrite. Al final, dime el total.",
+  "setup": "bash -lc 'test -n \"$XDG_DATA_HOME\" -a \"$XDG_DATA_HOME\" != \"$HOME/.local/share\" || { echo \"solo dentro de la KWin anidada\" >&2; exit 1; }; mkdir -p \"$BENCH_HOME\" \"$XDG_DATA_HOME/bench\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/resumen.txt\" && cp bench/fixtures/facturas-octubre.txt \"$BENCH_HOME/facturas.txt\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/facturas.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "desktop",
+    "largo",
+    "rung2",
+    "kcalc",
+    "kwrite"
+  ],
+  "target": "agent",
+  "budget_s": 420
+}

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Cita previa · Oficinas de atención ciudadana</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 36rem; margin: 2rem auto; padding: 0 1rem; }
+ label { display: block; margin-top: .8rem; }
+ select { font: inherit; padding: .3rem; width: 100%; }
+ fieldset { margin-top: 1rem; }
+ fieldset label { display: inline-block; margin-right: 1rem; }
+ button { font: inherit; padding: .4rem .9rem; margin-top: 1rem; }
+ #confirmacion { margin-top: 1.2rem; padding: .8rem 1rem; border: 1px solid #2a7; }
+ .onetrust-pc-dark-filter { position: fixed; inset: 0; background: rgba(0, 0, 0, .55); z-index: 1000; }
+ #onetrust-banner-sdk { position: fixed; left: 0; right: 0; bottom: 0; min-height: 45vh; background: #fff;
+                        z-index: 1001; padding: 1.5rem 2rem; box-shadow: 0 -4px 20px #0005; }
+</style>
+<body>
+<h1>Cita previa</h1>
+<p>Reserva tu cita en una de nuestras oficinas.</p>
+
+<label>Trámite
+ <select name="tramite">
+  <option value="">Elige un trámite…</option>
+  <option value="dni">Renovación del DNI</option>
+  <option value="pasaporte">Expedición de pasaporte</option>
+  <option value="nie">Certificado de NIE</option>
+ </select></label>
+<label>Oficina
+ <select name="oficina">
+  <option value="">Elige una oficina…</option>
+  <option value="murcia">Murcia · Gran Vía</option>
+  <option value="cartagena">Cartagena · Puertas de Murcia</option>
+  <option value="lorca">Lorca · Corredera</option>
+ </select></label>
+
+<fieldset id="huecos"><legend>Horas del lunes 16 de noviembre</legend><p>Elige trámite y oficina.</p></fieldset>
+<button type="button" id="reservar">Reservar cita</button>
+<div id="confirmacion" hidden></div>
+
+<script>
+// El banner es como el SDK de OneTrust: llega medio segundo después de cargar, con una capa oscura que tapa la
+// página entera. Lo que se elige en él y cada reserva confirmada se apuntan en /state/cita-estado.
+const HUECOS = {
+  murcia: [['09:00', 1], ['09:30', 1], ['10:00', 1]],
+  cartagena: [['09:00', 0], ['09:30', 0], ['10:00', 1], ['10:30', 1], ['11:00', 1]],
+  lorca: [['09:00', 0], ['12:00', 1]],
+};
+const estado = {consent: [], reservas: []};
+const apunta = () => fetch('/state/cita-estado', {method: 'POST', body: JSON.stringify(estado)});
+const $ = s => document.querySelector(s);
+
+const pinta = () => {
+  const of = $('[name=oficina]').value, caja = $('#huecos');
+  caja.querySelectorAll('label, p').forEach(e => e.remove());
+  if (!of || !$('[name=tramite]').value) { caja.insertAdjacentHTML('beforeend', '<p>Elige trámite y oficina.</p>'); return; }
+  for (const [h, libre] of HUECOS[of])
+    caja.insertAdjacentHTML('beforeend', `<label><input type="radio" name="hora" value="${h}" ${libre ? '' : 'disabled'}>
+      ${h}${libre ? '' : ' (completo)'}</label>`);
+};
+$('[name=oficina]').addEventListener('change', pinta);
+$('[name=tramite]').addEventListener('change', pinta);
+
+$('#reservar').addEventListener('click', () => {
+  const tramite = $('[name=tramite]').value, oficina = $('[name=oficina]').value, hora = $('[name=hora]:checked')?.value;
+  const conf = $('#confirmacion');
+  conf.hidden = false;
+  if (!tramite || !oficina || !hora) { conf.textContent = 'Falta elegir trámite, oficina u hora.'; return; }
+  const n = [...(tramite + oficina + hora)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 9000, 7) + 1000;
+  const localizador = oficina.slice(0, 2).toUpperCase() + '-' + n;
+  conf.textContent = `Cita confirmada para el lunes 16 de noviembre a las ${hora}. Localizador: ${localizador}.`;
+  estado.reservas.push({tramite, oficina, hora, localizador});
+  apunta();
+});
+
+setTimeout(() => {
+  document.body.insertAdjacentHTML('beforeend', `
+   <div id="onetrust-consent-sdk">
+    <div class="onetrust-pc-dark-filter"></div>
+    <div id="onetrust-banner-sdk" role="region" aria-label="Aviso de cookies">
+     <h2>Tu privacidad</h2>
+     <p>Usamos cookies propias y de terceros para analizar el uso del sitio y mostrarte publicidad. Puedes
+        aceptarlas todas, rechazarlas o configurarlas.</p>
+     <button id="onetrust-pc-btn-handler">Configurar cookies</button>
+     <button id="onetrust-reject-all-handler">Rechazar todas</button>
+     <button id="onetrust-accept-btn-handler">Aceptar todas las cookies</button>
+    </div>
+   </div>`);
+  const elige = v => () => { estado.consent.push(v); apunta(); if (v !== 'config') $('#onetrust-consent-sdk').remove(); };
+  $('#onetrust-pc-btn-handler').addEventListener('click', elige('config'));
+  $('#onetrust-reject-all-handler').addEventListener('click', elige('reject'));
+  $('#onetrust-accept-btn-handler').addEventListener('click', elige('accept'));
+}, 500);
+</script>
+</body>
+</html>

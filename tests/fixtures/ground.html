@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>manos — verdad de terreno</title>
+<style>
+  body { margin: 0; font: 14px sans-serif; }
+  main { max-width: 420px; padding: 8px; }
+  /* El par tapado vive en su propia columna, para que el solapamiento sea exactamente uno. */
+  #zona { position: absolute; left: 600px; top: 40px; width: 300px; height: 80px; }
+  #tapado { position: absolute; left: 20px; top: 20px; }
+  #cookie-consent { position: absolute; left: 0; top: 0; width: 300px; height: 80px;
+                    background: #223; color: #fff; z-index: 9; padding: 6px; }
+  .lejos { position: absolute; top: 6000px; }
+  iframe { width: 300px; height: 120px; border: 1px solid #ccc; }
+</style>
+
+<!-- La verdad de terreno son los once nombres de `DIANAS`, en tests/test_observe.py: aquí no hay
+     atributos de puntuación, porque un `data-gt` en el fixture obliga a cosecharlo en producción.
+     Lo que NO es diana y tampoco debe salir: los dos campos ocultos y el campo deliberadamente
+     fuera del viewport. -->
+
+<div id="zona">
+  <button id="tapado">Botón tapado</button>
+  <div id="cookie-consent">Usamos cookies. Este bloque tapa el botón a propósito.</div>
+</div>
+
+<main>
+<form>
+  <p><label for="nombre">Nombre completo</label>
+     <input id="nombre" name="nombre" type="text" maxlength="40" required></p>
+
+  <p><label for="tel">Teléfono</label>
+     <input id="tel" name="tel" type="tel" pattern="[0-9]{9}" aria-describedby="tel-ayuda"
+            value="12">
+     <span id="tel-ayuda">Debe tener 9 dígitos</span></p>
+
+  <p><label for="prov">Provincia</label>
+     <select id="prov" name="prov">
+       <option value="MU">Murcia</option>
+       <option value="MA">Madrid</option>
+     </select></p>
+
+  <p><label><input type="checkbox" name="acepto" required> Acepto las condiciones</label></p>
+
+  <p><button type="submit">Enviar</button></p>
+
+  <!-- ocultos: ninguno de los dos es diana -->
+  <input type="file" id="ficha" style="display:none">
+  <div hidden><input type="text" name="paso-oculto" required></div>
+</form>
+
+<p><a href="https://example.org/destino">Un enlace normal</a></p>
+
+<p><a href="https://example.org/logo"><img width="40" height="40" alt="Catálogo 2026"
+   src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></a></p>
+
+<div role="button" tabindex="0">Botón ARIA</div>
+
+<div id="fantasma" onclick="void 0" aria-hidden="true">Ayuda</div>
+
+<input class="lejos" type="text" aria-label="Campo muy abajo">
+
+<fila-iban></fila-iban>
+
+<iframe id="marco" src="about:blank" title="marco"></iframe>
+</main>
+
+<script>
+  // Un campo dentro de un shadow root abierto: la cosecha tiene que cruzar la frontera.
+  customElements.define('fila-iban', class extends HTMLElement {
+    connectedCallback() {
+      const r = this.attachShadow({mode: 'open'});
+      r.innerHTML = '<label for="iban">IBAN</label>' +
+                    '<input id="iban" name="iban" type="text">';
+    }
+  });
+</script>
+</html>

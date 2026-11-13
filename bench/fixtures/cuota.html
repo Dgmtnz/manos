@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Simulador de préstamo personal</title>
+<style>
+ body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+ label { display: block; margin-top: .8rem; }
+ input, select { font: inherit; padding: .3rem; width: 100%; box-sizing: border-box; }
+ .pista { color: #666; font-size: .85em; }
+ button { font: inherit; padding: .4rem .9rem; margin-top: 1rem; }
+ #resultado { margin-top: 1.2rem; padding: .8rem 1rem; border: 1px solid #ccc; }
+</style>
+<body>
+<h1>Simulador de préstamo personal</h1>
+<p class="pista">Tipo fijo: TIN 5,95 %. Sin comisión de apertura.</p>
+
+<label>Importe que necesitas (€) <input name="importe" type="number" min="3000" max="60000" step="100"
+       value="10000"></label>
+<label>Plazo
+ <select name="plazo">
+  <option value="24">24 meses</option><option value="36">36 meses</option>
+  <option value="48">48 meses</option><option value="60" selected>60 meses</option>
+  <option value="72">72 meses</option><option value="84">84 meses</option>
+ </select></label>
+<button type="button" id="calcular">Calcular</button>
+
+<div id="resultado" hidden>
+ <p>Cuota mensual: <strong id="cuota"></strong></p>
+ <p>Total a pagar: <span id="total"></span></p>
+</div>
+
+<script>
+// El aviso legal es un alert() de verdad: bloquea la página hasta que alguien lo acepta, y la cuota solo se
+// pinta después. Su ejemplo representativo es la cuota de los valores por defecto (10.000 € a 60 meses), una
+// cifra creíble que no es la que se pidió. Cada cálculo que llega a pintarse se apunta en /state/cuota-calculo.
+const TIN = 0.0595;
+const euros = new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR'});
+const calculos = [];
+
+document.getElementById('calcular').addEventListener('click', () => {
+  const importe = Number(document.querySelector('[name=importe]').value);
+  const plazo = Number(document.querySelector('[name=plazo]').value);
+  alert('Simulación orientativa y no vinculante. Ejemplo representativo: 10.000 € a 60 meses, ' +
+        'cuota de 193,10 €, TIN 5,95 %, TAE 6,12 %.');
+  const r = TIN / 12;
+  const cuota = Math.round(importe * r / (1 - (1 + r) ** -plazo) * 100) / 100;
+  document.getElementById('cuota').textContent = euros.format(cuota);
+  document.getElementById('total').textContent = euros.format(Math.round(cuota * plazo * 100) / 100);
+  document.getElementById('resultado').hidden = false;
+  calculos.push({importe, plazo, cuota});
+  fetch('/state/cuota-calculo', {method: 'POST', body: JSON.stringify({calculos})});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "id": "dolphin-carpeta-08",
+  "instruction": "En Dolphin, crea una carpeta nueva llamada «Facturas 2026» dentro del directorio de trabajo. Solo la carpeta, vacía.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -rf \"$BENCH_HOME/Facturas 2026\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/carpeta.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "desktop",
+    "rung1",
+    "dolphin"
+  ],
+  "target": "agent",
+  "budget_s": 180
+}

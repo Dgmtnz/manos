@@ -1,0 +1,119 @@
+#!/bin/sh
+# Parada de emergencia de manos. No pasa por el servidor MCP (PLAN §8.3): no necesita que esté
+# vivo, ni respondiendo, ni instalado. Eso es todo el motivo de elegir el diseño (ii).
+#
+# Orden de la escalera, medido en research/p0/B-kwin-impossibles.md:
+#   tocar el kill-switch (10 ms) -> congelar el scope (10 ms) -> que decida el humano -> parar.
+# Parar NO se hace aquí: p95 2410 ms sobre un árbol de navegador, y mata la reversibilidad
+# (el mismo websocket CDP contesta 0,6 ms después de descongelar).
+#
+# El shell interactivo de esta máquina es fish, así que esto declara /bin/sh y no asume bash.
+set -u
+
+# El mismo fichero que lee browser/session.py:50 (HOME / "stop"). Si cambia allí, cambia aquí.
+SWITCH="$HOME/.local/share/manos/stop"
+PATTERN='manos-browser-*.scope'
+DESKTOP="$HOME/.local/share/applications/org.manos.panic.desktop"
+CHORD='Meta+Alt+Esc'
+SELF=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
+
+scopes() {
+    systemctl --user list-units --type=scope --all --no-legend --plain "$PATTERN" 2>/dev/null \
+        | awk 'NF {print $1}'
+}
+
+say() {  # notificación de Plasma si hay notify-send; si no, por salida estándar y sin fallar
+    printf '%s\n%s\n' "$1" "$2"
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send -a manos -u critical "$1" "$2" 2>/dev/null || true
+    fi
+}
+
+case "${1-}" in
+--resume)
+    rm -f "$SWITCH"
+    for s in $(scopes); do systemctl --user thaw "$s" 2>/dev/null || true; done
+    say 'manos reanudado' "Freno suelto y navegador descongelado. El agente puede volver a actuar."
+    ;;
+--status)
+    if [ -e "$SWITCH" ]; then echo "freno: PISADO ($SWITCH)"; else echo "freno: libre"; fi
+    found=0
+    for s in $(scopes); do
+        found=1
+        echo "scope: $s $(systemctl --user show -P FreezerState "$s" 2>/dev/null)"
+    done
+    [ "$found" = 0 ] && echo "scope: ninguno vivo"
+    if [ -r "$DESKTOP" ]; then echo "atajo: $DESKTOP ($CHORD)"; else echo "atajo: sin instalar"; fi
+    ;;
+--install)
+    mkdir -p "$(dirname "$DESKTOP")"
+    # Exec absoluto: el atajo global no hereda PATH de ningún shell.
+    cat > "$DESKTOP" <<DESK
+[Desktop Entry]
+Type=Application
+Name=Parada de emergencia de manos
+Comment=Congela el navegador del agente y pisa el freno
+Icon=process-stop
+NoDisplay=true
+Terminal=false
+Exec=$SELF
+DESK
+    chord=$CHORD
+    # 419430400 = Meta+Alt+Esc en la codificación de teclas de Qt. Si estuviera cogido, Meta+Esc.
+    if ! busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel \
+            isGlobalShortcutAvailable is 419430400 "" 2>/dev/null | grep -q true; then
+        chord='Meta+Esc'
+    fi
+    if ! grep -q '^\[services\]\[org\.manos\.panic\.desktop\]$' "$HOME/.config/kglobalshortcutsrc"; then
+        # En [services] el valor es solo la tecla. "tecla,none,nombre" es el formato de los
+        # componentes normales: aquí KGlobalAccel lo lee como secuencia de 3 teclas
+        # (Meta+Alt+Esc, ?, ?) y el atajo no salta nunca.
+        printf '\n[services][org.manos.panic.desktop]\n_launch=%s\n' \
+            "$chord" >> "$HOME/.config/kglobalshortcutsrc"
+    fi
+    kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
+    # KGlobalAccel vive en KWin y no relee el fichero en caliente: el atajo vale desde el
+    # próximo inicio de sesión, o al instante si se asigna en Preferencias > Atajos.
+    echo "instalado: $DESKTOP con $chord (activo tras reiniciar sesión o asignarlo en Atajos)"
+    ;;
+--uninstall)
+    # Se desregistra por kglobalaccel, no borrando la línea a ciegas: si el registro sigue vivo en
+    # memoria, el próximo volcado de KGlobalAccel lo reescribiría en el fichero del usuario.
+    busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel unregister ss \
+        "org.manos.panic.desktop" "_launch" >/dev/null 2>&1 || true
+    rm -f "$DESKTOP"
+    # KConfig no tiene "borra este grupo" por CLI, y kwriteconfig6 --delete-group no existe en 6.x
+    # para subgrupos, así que el grupo se recorta a mano: desde su cabecera hasta la siguiente
+    # cabecera, o hasta el final. Terminar el rango en una línea vacía borraba hasta EOF cuando el
+    # grupo es el último del fichero, que es exactamente donde lo deja KGlobalAccel: se habría
+    # llevado por delante los atajos que se añadieran después. Se trunca en el sitio, no se mueve
+    # un fichero encima, para conservar el 0600 que pone KDE.
+    KSR="$HOME/.config/kglobalshortcutsrc"
+    if [ -f "$KSR" ]; then
+        awk 'BEGIN {k = 1} /^\[/ {k = ($0 != "[services][org.manos.panic.desktop]")} k' \
+            "$KSR" > "$KSR.manos" && cat "$KSR.manos" > "$KSR"
+        rm -f "$KSR.manos"
+    fi
+    kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
+    echo "desinstalado"
+    ;;
+"")
+    # El pánico. Primero el freno (acotado), después congelar, y nunca parar.
+    mkdir -p "$(dirname "$SWITCH")"
+    : > "$SWITCH"
+    n=0
+    for s in $(scopes); do
+        systemctl --user freeze "$s" 2>/dev/null && n=$((n + 1))
+    done
+    if [ "$n" = 0 ]; then
+        say 'manos: freno pisado' "No había navegador que congelar. El agente no podrá actuar."
+    else
+        say 'manos: agente CONGELADO' \
+"Congelado, no matado: se puede reanudar. Reanudar: $SELF --resume · Matar: systemctl --user stop '$PATTERN'"
+    fi
+    ;;
+*)
+    echo "uso: $(basename "$0") [--resume|--status|--install|--uninstall]" >&2
+    exit 2
+    ;;
+esac

@@ -1,0 +1,14 @@
+{
+  "id": "office-pdf-28",
+  "instruction": "Convierte a PDF la hoja de cálculo presupuesto.ods del directorio de trabajo: el PDF va junto a ella, como presupuesto.pdf. La hoja original no se toca. Al final, dime el total del presupuesto que sale en el PDF.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/presupuesto.pdf\" && cp bench/fixtures/presupuesto.ods \"$BENCH_HOME/\"'",
+  "verify": "bash -lc 'uv run --project . bench/verify/presupuesto.py'",
+  "teardown": "bash -lc ':'",
+  "tags": [
+    "ofimatica",
+    "fichero",
+    "pdf"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

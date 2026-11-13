@@ -1,0 +1,14 @@
+{
+  "id": "web-alerta-24",
+  "instruction": "Abre http://127.0.0.1:8921/cuota.html y simula un préstamo de 18.500 € a 48 meses. Dime la cuota mensual que sale.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && date +%s > \"$BENCH_HOME/.t0\" && rm -f \"$BENCH_HOME/cuota-calculo.json\" \"$BENCH_HOME/cuota.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/alerta.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "dialogo"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

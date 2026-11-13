@@ -1,0 +1,15 @@
+{
+  "id": "web-cookies-34",
+  "instruction": "Abre http://127.0.0.1:8921/reforma.html y pide presupuesto para reformar el baño a nombre de Ana Gil, teléfono 600112233. Dime el número de solicitud que te den.",
+  "setup": "bash -lc 'mkdir -p \"$BENCH_HOME\" && rm -f \"$BENCH_HOME/reforma-estado.json\" \"$BENCH_HOME/reforma.json\" && uv run --project . bench/verify/serve.py --start'",
+  "verify": "bash -lc 'uv run --project . bench/verify/reforma.py'",
+  "teardown": "bash -lc 'kill \"$(cat \"$BENCH_HOME/serve.pid\")\" 2>/dev/null; rm -f \"$BENCH_HOME/serve.pid\"'",
+  "tags": [
+    "navegador",
+    "web",
+    "cookies",
+    "formularios"
+  ],
+  "target": "agent",
+  "budget_s": 240
+}

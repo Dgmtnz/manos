@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Alta de cliente — 24 campos</title>
+
+<!-- El formulario de laboratorio de PLAN §5: 24 campos rellenables en español, sin un solo atributo
+     `autocomplete` en los que el clasificador de Chrome tiene que inferir, más los cuatro campos
+     sensibles y los tres botones de envío con sus tres clasificaciones.
+
+     Lo que cada rareza existe para medir, porque ninguna está de adorno:
+       · `#nacimiento`  input type=date      -> solo acepta ISO; teclear da basura
+       · `#nac_texto`   type=text dd/mm/aaaa -> el otro animal, el de las administraciones españolas
+       · `#telefono`    máscara que reescribe en cada `input`  -> la relectura nunca es igual
+       · `#importe`     máscara de importe es-ES               -> idem, con coma decimal
+       · `#sexo`        tres radios con el mismo `name`        -> UN campo con opciones, no tres
+       · `#provincia`   52 opciones                            -> el truncado del listado
+       · `#municipio`   combobox ARIA con fetch de 150 ms      -> se espera un predicado, no un tiempo
+       · `#iban`        dentro de un shadow root abierto
+       · `#cv`          input[type=file] display:none + botón  -> `opened_by`
+       · `#boletin`     div[role=checkbox] SIN manejador de teclado -> el Espacio no hace nada
+       · `#bio`         contenteditable nombrado por un `label[for]` que `el.labels` no ve
+       · `#clave`       type=password, con valor puesto        -> nivel A: no se teclea, y se lee el largo
+       · `#tarjeta`     autocomplete=cc-number, con valor      -> nivel A
+       · `#cvc`         autocomplete=cc-csc                    -> nivel A
+       · `#otp`         type=text, aria-label en español       -> nivel B: se teclea, pero no se enseña
+       · `#cp`          el test lo pre-rellena por `.value`     -> el Autofill SÍ lo pisa
+       · `#via`         lo teclea el agente con eventos         -> el Autofill NO lo pisa
+-->
+
+<style>
+  body { margin: 0; font: 14px sans-serif; }
+  main { max-width: 560px; padding: 10px; }
+  fieldset { margin: 0 0 10px; }
+  p { margin: 4px 0; }
+  label { display: inline-block; min-width: 190px; }
+  #cv { display: none; }
+  #lb { position: absolute; background: #fff; border: 1px solid #888; padding: 2px; }
+  #lb[hidden] { display: none; }
+  [role=option][aria-selected=true] { background: #cde; }
+  #boletin { display: inline-block; width: 14px; height: 14px; border: 1px solid #555;
+             vertical-align: middle; }
+  #boletin[aria-checked=true] { background: #246; }
+  #bio { border: 1px solid #aaa; min-height: 2.4em; padding: 2px; }
+</style>
+
+<main>
+<form id="alta" action="/enviar" method="post">
+
+<fieldset><legend>Datos personales</legend>
+  <p><label for="nombre">Nombre</label>
+     <input id="nombre" name="nombre" type="text" maxlength="30" required></p>
+  <p><label for="apellido1">Primer apellido</label>
+     <input id="apellido1" name="apellido1" type="text" required></p>
+  <p><label for="apellido2">Segundo apellido</label>
+     <input id="apellido2" name="apellido2" type="text"></p>
+  <p><label for="dni">DNI</label>
+     <input id="dni" name="dni" type="text" pattern="[0-9]{8}[A-Za-z]" required
+            aria-describedby="dni-ayuda">
+     <span id="dni-ayuda">Ocho dígitos y la letra, sin guiones</span></p>
+  <p><label for="nacimiento">Fecha de nacimiento</label>
+     <input id="nacimiento" name="nacimiento" type="date" min="1900-01-01" required></p>
+  <p><label for="nac_texto">Fecha de caducidad del DNI</label>
+     <input id="nac_texto" name="nac_texto" type="text" placeholder="dd/mm/aaaa" maxlength="10"
+            pattern="\d{2}/\d{2}/\d{4}" required></p>
+  <p><label for="email">Correo electrónico</label>
+     <input id="email" name="email" type="email" required></p>
+  <p><label for="telefono">Teléfono</label>
+     <input id="telefono" name="telefono" type="tel" inputmode="numeric" required></p>
+  <p role="group" aria-label="Sexo">Sexo
+     <label><input type="radio" name="sexo" value="M" required> Mujer</label>
+     <label><input type="radio" name="sexo" value="H"> Hombre</label>
+     <label><input type="radio" name="sexo" value="X"> Prefiero no decirlo</label></p>
+  <p><label for="idioma">Idioma de contacto</label>
+     <select id="idioma" name="idioma" required>
+       <option value="">-- elige --</option>
+       <option value="es">Español</option>
+       <option value="ca">Català</option>
+       <option value="en">English</option>
+     </select></p>
+</fieldset>
+
+<fieldset><legend>Dirección</legend>
+  <p><label for="via">Calle</label>
+     <input id="via" name="via" type="text" required></p>
+  <p><label for="numero">Número</label>
+     <input id="numero" name="numero" type="number" min="1" max="999" step="1" required></p>
+  <p><label for="piso">Piso y puerta</label>
+     <input id="piso" name="piso" type="text"></p>
+  <p><label for="cp">Código postal</label>
+     <input id="cp" name="cp" type="text" pattern="[0-9]{5}" inputmode="numeric" required></p>
+  <p><label for="municipio">Municipio</label>
+     <input id="municipio" name="municipio" type="text" role="combobox" aria-autocomplete="list"
+            aria-controls="lb" aria-expanded="false" autocomplete="off" required>
+     <span id="lb" role="listbox" hidden></span></p>
+  <p><label for="provincia">Provincia</label>
+     <select id="provincia" name="provincia" required></select></p>
+  <p><label for="pais">País</label>
+     <select id="pais" name="pais" required>
+       <option value="">-- elige --</option>
+       <option value="ES">España</option>
+       <option value="PT">Portugal</option>
+       <option value="FR">Francia</option>
+     </select></p>
+  <fila-iban></fila-iban>
+</fieldset>
+
+<fieldset><legend>Documentos y consentimiento</legend>
+  <p><label for="cv">Curriculum</label>
+     <input id="cv" name="cv" type="file" accept=".pdf,.txt">
+     <button type="button" id="cvbtn">Subir CV</button></p>
+  <p><label for="importe">Importe domiciliado</label>
+     <input id="importe" name="importe" type="text" inputmode="decimal" required></p>
+  <p><label><input id="acepto" name="acepto" type="checkbox" required> Acepto las condiciones</label></p>
+  <p><span id="boletin-t">Recibir boletín</span>
+     <span id="boletin" role="checkbox" tabindex="0" aria-checked="false"
+           aria-labelledby="boletin-t"></span></p>
+  <p><label for="comentarios">Comentarios</label>
+     <textarea id="comentarios" name="comentarios" maxlength="200"></textarea></p>
+  <div><label for="bio">Biografía</label>
+     <div id="bio" contenteditable="true"></div></div>
+</fieldset>
+
+<fieldset><legend>Pago y seguridad</legend>
+  <p><label for="clave">Contraseña</label>
+     <input id="clave" name="clave" type="password" value="Tr3nd3Murcia!"></p>
+  <p><label for="tarjeta">Número de tarjeta</label>
+     <input id="tarjeta" name="tarjeta" type="text" autocomplete="cc-number"
+            value="4111111111111111"></p>
+  <p><label for="cvc">CVC</label>
+     <input id="cvc" name="cvc" type="text" autocomplete="cc-csc" maxlength="4"></p>
+  <p><input id="otp" name="otp" type="text" aria-label="Código de verificación" maxlength="6"></p>
+</fieldset>
+
+  <p><button type="submit" id="enviar">Enviar</button>
+     <button type="submit" id="borrador" name="accion" value="draft">Guardar borrador</button></p>
+</form>
+</main>
+
+<script>
+// --- 52 provincias: el listado de opciones tiene que truncarse y dejar consultar por prefijo -------
+const PROV = ["Álava","Albacete","Alicante","Almería","Asturias","Ávila","Badajoz","Baleares",
+  "Barcelona","Burgos","Cáceres","Cádiz","Cantabria","Castellón","Ceuta","Ciudad Real","Córdoba",
+  "Cuenca","Girona","Granada","Guadalajara","Guipúzcoa","Huelva","Huesca","Jaén","La Coruña",
+  "La Rioja","Las Palmas","León","Lérida","Lugo","Madrid","Málaga","Melilla","Murcia","Navarra",
+  "Ourense","Palencia","Pontevedra","Salamanca","Santa Cruz de Tenerife","Segovia","Sevilla","Soria",
+  "Tarragona","Teruel","Toledo","Valencia","Valladolid","Vizcaya","Zamora","Zaragoza"];
+const sel = document.getElementById('provincia');
+sel.add(new Option('-- elige --', ''));
+PROV.forEach((p, i) => sel.add(new Option(p, 'P' + String(i).padStart(2, '0'))));
+
+// --- IBAN dentro de un shadow root abierto ----------------------------------------------------------
+customElements.define('fila-iban', class extends HTMLElement {
+  connectedCallback() {
+    const r = this.attachShadow({mode: 'open'});
+    r.innerHTML = '<p><label for="iban">IBAN</label>' +
+                  '<input id="iban" name="iban" type="text" pattern="ES[0-9]{22}" required></p>';
+  }
+});
+
+// --- máscaras: reescriben en CADA evento de entrada -------------------------------------------------
+document.getElementById('telefono').addEventListener('input', e => {
+  const d = e.target.value.replace(/\D/g, '').slice(0, 9);
+  e.target.value = [d.slice(0,3), d.slice(3,5), d.slice(5,7), d.slice(7,9)].filter(Boolean).join(' ');
+});
+document.getElementById('importe').addEventListener('input', e => {
+  const d = e.target.value.replace(/\D/g, '');
+  e.target.value = d ? (d.slice(0, -2) || '0') + ',' + d.slice(-2).padStart(2, '0') + ' €' : '';
+});
+
+// --- combobox ARIA: las opciones llegan 150 ms después de teclear -----------------------------------
+const MUN = ["Murcia","Cartagena","Lorca","Molina de Segura","Alcantarilla","Madrid","Málaga",
+             "Marbella","Barcelona"];
+const combo = document.getElementById('municipio'), lb = document.getElementById('lb');
+let timer = null;
+combo.addEventListener('input', () => {
+  clearTimeout(timer);
+  lb.hidden = true; combo.setAttribute('aria-expanded', 'false');
+  combo.removeAttribute('aria-activedescendant');
+  const q = combo.value.trim().toLowerCase();
+  if (!q) return;
+  timer = setTimeout(() => {
+    const hits = MUN.filter(m => m.toLowerCase().startsWith(q));
+    lb.innerHTML = hits.map((m, i) =>
+      `<div role="option" id="opt${i}" aria-selected="false">${m}</div>`).join('');
+    if (!hits.length) return;
+    lb.hidden = false;
+    combo.setAttribute('aria-expanded', 'true');
+  }, 150);
+});
+combo.addEventListener('keydown', ev => {
+  const opts = [...lb.querySelectorAll('[role=option]')];
+  if (!opts.length) return;
+  const cur = opts.findIndex(o => o.id === combo.getAttribute('aria-activedescendant'));
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    const next = ev.key === 'ArrowDown'
+      ? Math.min(cur + 1, opts.length - 1) : Math.max(cur - 1, 0);
+    opts.forEach(o => o.setAttribute('aria-selected', 'false'));
+    opts[next].setAttribute('aria-selected', 'true');
+    combo.setAttribute('aria-activedescendant', opts[next].id);
+    ev.preventDefault();
+  } else if (ev.key === 'Enter' && cur >= 0) {
+    commit(opts[cur].textContent);
+    ev.preventDefault();
+  }
+});
+lb.addEventListener('mousedown', ev => {
+  if (ev.target.getAttribute('role') === 'option') commit(ev.target.textContent);
+});
+function commit(text) {
+  combo.value = text;
+  lb.hidden = true;
+  combo.setAttribute('aria-expanded', 'false');
+  combo.removeAttribute('aria-activedescendant');
+  combo.dispatchEvent(new Event('change', {bubbles: true}));
+}
+
+// --- la casilla falsa NO tiene manejador de teclado: el Espacio no la toca -------------------------
+const fake = document.getElementById('boletin');
+fake.addEventListener('click', () => fake.setAttribute(
+  'aria-checked', fake.getAttribute('aria-checked') === 'true' ? 'false' : 'true'));
+
+// El botón bonito abre el input de ficheros escondido.
+document.getElementById('cvbtn').addEventListener('click', () => document.getElementById('cv').click());
+
+// Esta página no se envía nunca a ningún sitio: el `submit` se para aquí y se anota, que es lo que
+// el test comprueba.
+document.getElementById('alta').addEventListener('submit', ev => {
+  ev.preventDefault();
+  globalThis.__enviado = (globalThis.__enviado || 0) + 1;
+});
+</script>
+</html>
