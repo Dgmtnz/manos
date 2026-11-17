@@ -24,7 +24,7 @@ the most reliable route available for each step, and drops to pixels only as a l
 | 1 | Application menu actions by name over D-Bus (KXmlGui) | Every KDE app: `file_save`, `create_dir`, `edit_paste`… |
 | 2 | The accessibility tree (AT-SPI): roles, names, states | Any accessible app, GTK included |
 | 3 | Screenshot plus synthetic keyboard and mouse (libei) | Whatever the first two cannot reach |
-| Web | A dedicated Chromium over CDP, read as elements rather than pixels | Sites, forms, iframes, shadow DOM, dialogs |
+| Web | A dedicated Brave (Chromium) over CDP, with its own profile, read as elements rather than pixels | Sites, forms, iframes, shadow DOM, dialogs |
 | Office | Headless LibreOffice over UNO, no windows | .ods .xlsx .csv .odt .docx .pdf |
 
 In the benchmark, only **6.3 %** of acting steps needed pixels.
@@ -79,12 +79,12 @@ Requirements:
 - KDE Plasma 6 on Wayland, with a systemd user session
 - Python 3.14 and [uv](https://docs.astral.sh/uv/)
 - LibreOffice with its Python UNO bridge, for the office tools
+- [Brave](https://brave.com) at `/opt/brave-bin/brave` (Arch: `brave-bin`); the agent runs it with its own profile, separate from yours
 - An MCP client; it is built and tuned for [Claude Code](https://docs.claude.com/en/docs/claude-code)
 
 ```bash
 git clone https://github.com/Dgmtnz/manos && cd manos
 uv sync
-uv run playwright install chromium        # the agent's own browser, separate from yours
 uv run --project . server.py --diag       # checks the machine: PASS / FAIL / SKIP per line
 
 claude mcp add -s user manos -- uv run --project "$PWD" "$PWD/server.py"
@@ -132,7 +132,7 @@ each task by an independent verifier, not by the agent's own claim.
 
 manos is a working, tested personal project, built and measured on one machine: CachyOS with Plasma 6.8 on Wayland.
 Its code comments, prompts and guide are in Spanish, and the prompts address the user as Diego. Change that in
-`server.py` if you adopt it. The browser path is pinned to the Playwright Chromium build in `browser/session.py`.
+`server.py` if you adopt it. The browser path is pinned to the installed Brave binary (`CHROME` in `browser/session.py`).
 
 ## License
 

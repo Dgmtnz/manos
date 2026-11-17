@@ -80,7 +80,7 @@ assert "enabled" not in _prefs["autofill"]  # autofill.enabled está deprecado y
 _seed_prefs()  # idempotente
 assert json.loads((PROFILE / "Default" / "Preferences").read_text()) == _prefs
 
-# _browser_main sobre un /proc falso: dentro, fuera, y un padre que no es Chrome (Brave) no cuenta.
+# _browser_main sobre un /proc falso: dentro, fuera, y un padre que ejecuta otro binario no cuenta.
 with tempfile.TemporaryDirectory() as tmp:
     root = Path(tmp)
     (root / "chrome").touch(); (root / "brave").touch(); (root / "cg").mkdir()
@@ -166,6 +166,14 @@ async def main():
                               {"expression": "window.__hit", "returnByValue": True}))["result"]["value"]
         assert hit == [120, 90], f"el clic no llegó a la página: {hit!r}"
         print(f"clic por CDP leído de vuelta en la página: {hit}")
+
+        # Que no se anuncie como automatizado: Google y Cloudflare echaban a Chrome for Testing.
+        # Sin --disable-blink-features=AutomationControlled, webdriver es true (lo enciende la tubería).
+        nav = await s.page.evaluate("({wd: navigator.webdriver, ua: navigator.userAgent, brave: typeof navigator.brave})")
+        exe = Path(f"/proc/{s.main_pid}/exe").resolve()
+        assert nav["wd"] is False and "HeadlessChrome" not in nav["ua"], nav
+        assert exe == Path("/opt/brave-bin/brave") and nav["brave"] == "object", (exe, nav)
+        print(f"sigilo: webdriver={nav['wd']} · {exe} · {nav['ua']}")
 
         shot = await s.screenshot()
         assert shot[:2] == b"\xff\xd8", "la captura no es un JPEG"

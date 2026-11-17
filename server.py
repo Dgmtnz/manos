@@ -2058,7 +2058,7 @@ async def diag(live_eis: bool = False, live_input: bool = False) -> int:
     checks: list[Row] = []
 
     from browser.session import CHROME
-    checks.append(("binario Chrome for Testing", CHROME.exists(), str(CHROME)))
+    checks.append(("binario de Brave", CHROME.exists(), str(CHROME)))
     try:
         import playwright
         checks.append(("playwright importable", True, playwright.__file__.rsplit("/", 3)[0]))

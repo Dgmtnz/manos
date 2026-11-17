@@ -46,7 +46,10 @@ from urllib.request import url2pathname
 
 import kwin
 
-CHROME = pathlib.Path.home() / ".cache/ms-playwright/chromium-1243/chrome-linux64/chrome"
+# El Brave instalado, el binario real: /usr/bin/brave es un script que mete ~/.config/brave-flags.conf (los
+# flags personales de Diego) y hace exec de este. El perfil sigue siendo el del agente (PROFILE), nunca el suyo.
+# Chrome for Testing se anunciaba como automatizado y Google («este navegador no es seguro») y Cloudflare lo echaban.
+CHROME = pathlib.Path("/opt/brave-bin/brave")
 HOME = pathlib.Path.home() / ".local/share/manos"
 # MANOS_BROWSER_PROFILE: el banco de pruebas usa un perfil desechable, sin las sesiones del perfil de siempre
 PROFILE = pathlib.Path(os.environ.get("MANOS_BROWSER_PROFILE") or HOME / "browser-profile")
@@ -74,6 +77,8 @@ FLAGS = [
     "--disable-background-timer-throttling",
     "--disable-backgrounding-occluded-windows",
     "--disable-renderer-backgrounding",
+    # Sin esto `navigator.webdriver` es true (medido: lo enciende la tubería CDP, sin --enable-automation).
+    "--disable-blink-features=AutomationControlled",
 ]
 # NO van aquí, y cada ausencia es una medida: --window-position y --window-size son INERTES en Wayland
 # nativo (se pidió 1920,420 1080x1080 y KWin puso 436,622 1048x1038 en la otra salida), y
@@ -248,7 +253,8 @@ def _browser_main(cgroup: pathlib.Path, proc=pathlib.Path("/proc"),
 
     Dentro: un proceso del scope que ejecuta `chrome` sin `--type=`. Fuera: el padre, fuera del scope,
     de un proceso del scope, y que ejecuta `chrome`. Nunca por el nombre de su unidad: los scopes de
-    Brave se llaman igual.
+    Brave se llaman igual. El Brave del usuario ejecuta el MISMO binario, y no importa: solo se mira dentro
+    del scope y el padre directo de sus procesos, que son siempre de nuestro árbol.
     """
     procs = set(cgroup.joinpath("cgroup.procs").read_text().split())
     chrome = chrome.resolve()
@@ -307,8 +313,8 @@ class BrowserSession:
 
         if not CHROME.exists():
             raise FileNotFoundError(
-                f"No está el binario de Chrome for Testing en {CHROME}. manos no arranca sin él: "
-                "instálalo con 'uv run playwright install chromium' o corrige la ruta.")
+                f"No está el binario de Brave en {CHROME}. manos no arranca sin él: "
+                "instala Brave (en Arch, brave-bin) o corrige la ruta en browser/session.py.")
         HOME.mkdir(parents=True, exist_ok=True)
         _seed_prefs()
 
@@ -330,6 +336,9 @@ class BrowserSession:
                 env={**os.environ, "MANOS_SCOPE": scope, "MANOS_CHROME": str(CHROME)},
                 no_viewport=True,
                 chromium_sandbox=True,  # el defecto de Playwright es False, e inyecta --no-sandbox
+                # Playwright 1.64 ya no lo pasa (medido en el argv); se ignora por si vuelve. Lo que delata
+                # `navigator.webdriver` es la tubería CDP, y eso lo tapa el --disable-blink-features de FLAGS.
+                ignore_default_args=["--enable-automation"],
                 timeout=timeout * 1000,
             )
         except BaseException:

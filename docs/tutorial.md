@@ -90,8 +90,8 @@ traspaso o en modo mirar (control compartido). Se cierra con la sesión de `clau
 
 - Comprobar: `uv run --project . server.py --selftest`.
 - Banco (35 tareas, ~$3 con Sonnet): `flock "$XDG_RUNTIME_DIR/manos-bench.lock" uv run --project . bench/run.py --core --model sonnet`.
-- El navegador es el Chromium de Playwright fijado en `browser/session.py` (`CHROME`); si actualizas Playwright,
-  cambia esa ruta y repite el selftest.
+- El navegador es el Brave instalado (`/opt/brave-bin/brave`, `CHROME` en `browser/session.py`) con un perfil
+  propio del agente, no el tuyo. Si actualizas Brave o Playwright, repite el selftest.
 - No lances dos selftests o bancos a la vez: comparten perfil y puerto (por eso el `flock`).
 
 ## 8. Consejos
